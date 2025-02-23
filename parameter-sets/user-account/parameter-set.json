@@ -1,0 +1,38 @@
+{
+    "meta" : {
+        "label": "SSO User accounts",
+        "description": "",
+        "icon": "icon-adobe_analytics"
+    },
+    "defaultDefinableInline": false,
+    "defaultDefinableAtProjectLevel": false,
+    "pluginParams": [
+    ],
+
+    "params": [
+        {
+            "name": "bearer_token",
+            "type": "CREDENTIAL_REQUEST",
+            "label": "Adobe Single Sign On",
+            "credentialRequestSettings": {
+                "type": "OAUTH2",
+                "authorizationEndpoint": "https://ims-na1.adobelogin.com/ims/authorize",
+                "tokenEndpoint": "https://ims-na1.adobelogin.com/ims/token",
+                "scope": "openid AdobeID additional_info.projectedProductContext"
+            },
+            "mandatory": true
+        },
+        {
+            "name": "company_id",
+            "label": "Company ID",
+            "description": "as defined on your Adobe account",
+            "type": "STRING"
+        },
+        {
+            "name": "api_key",
+            "label": "API key",
+            "description": "",
+            "type": "STRING"
+        }
+    ]
+}

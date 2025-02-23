@@ -1,0 +1,73 @@
+{
+    "meta" : {
+        "label": "Get Reports",
+        "description": "",
+        "icon": "icon-adobe_analytics"
+    },
+    "readable": true,
+    "writable": false,
+    "supportAppend": false,
+    "params": [
+        {
+            "name": "auth_type",
+            "label": "Type of authentication",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "user_account",
+                    "label": "Single Sign On"
+                }
+            ]
+        },
+        {
+            "name": "user_account",
+            "label": "User account",
+            "type": "PRESET",
+            "parameterSetId": "user-account",
+            "visibilityCondition": "model.auth_type == 'user_account'"
+        },
+        {
+            "name": "report_id",
+            "label": "Report ID",
+            "type": "STRING"
+        },
+        {
+            "name": "start_date",
+            "label": "Start date",
+            "type": "DATE"
+        },
+        {
+            "name": "end_date",
+            "label": "End date",
+            "type": "DATE"
+        },
+        {
+            "name": "metrics",
+            "type": "MULTISELECT",
+            "selectChoices": [
+                {
+                    "value": "metrics/visits",
+                    "label": "Visits"
+                },
+                {
+                    "value": "metrics/pageviews",
+                    "label": "Page views"
+                },
+                {
+                    "value": "metrics/visitors",
+                    "label": "Visitors"
+                }
+            ]
+        },
+        {
+            "name": "dimensions",
+            "type": "MULTISELECT",
+            "selectChoices": [
+                {
+                    "value": "variables/daterangeday",
+                    "label": "Date range day"
+                }
+            ]
+        }
+    ]
+}
