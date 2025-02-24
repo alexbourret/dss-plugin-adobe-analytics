@@ -13,6 +13,7 @@ This plugin is under developpement.
 ### On Dataiku DSS side
 
 As a Dataiku DSS admin:
+- Install the plugin by going to **Other sections** > **Plugins** > **Add Plugin** > **Fetch from GIT repository** and add **https://github.com/alexbourret/dss-plugin-adobe-analytics** in **Repository URL**
 - Create a preset, by clicking on **Other sections** > **Plugins** > **Installed** > **Adobe Analytics** > **Settings** > **SSO User accounts** > **+ Add preset**.
 - Name the preset, add the client ID and client secret produced on step 3
 - Add the company ID retrieved on step 1
