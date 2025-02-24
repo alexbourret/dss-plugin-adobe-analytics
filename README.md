@@ -1,5 +1,7 @@
 # Dataiku Adobe Analytics plugin
 
+This plugin is under developpement. 
+
 ## How to install
 
 ### On Adobe Analytics' side
