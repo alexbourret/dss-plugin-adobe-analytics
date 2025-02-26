@@ -9,6 +9,11 @@
     "supportAppend": false,
     "params": [
         {
+            "name": "version_number",
+            "label": "Alpha.2",
+            "type": "SEPARATOR"
+        },
+        {
             "name": "auth_type",
             "label": "Type of authentication",
             "type": "SELECT",
@@ -16,6 +21,10 @@
                 {
                     "value": "user_account",
                     "label": "Single Sign On"
+                },
+                {
+                    "value": "service_account",
+                    "label": "API key only"
                 }
             ]
         },
@@ -25,6 +34,13 @@
             "type": "PRESET",
             "parameterSetId": "user-account",
             "visibilityCondition": "model.auth_type == 'user_account'"
+        },
+        {
+            "name": "service_account",
+            "label": "API key only",
+            "type": "PRESET",
+            "parameterSetId": "service-account",
+            "visibilityCondition": "model.auth_type == 'service_account'"
         },
         {
             "name": "report_id",

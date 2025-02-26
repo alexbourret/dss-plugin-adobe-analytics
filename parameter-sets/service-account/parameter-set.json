@@ -1,0 +1,35 @@
+{
+    "meta" : {
+        "label": "API key only",
+        "description": "",
+        "icon": "icon-adobe_analytics"
+    },
+    "defaultDefinableInline": true,
+    "defaultDefinableAtProjectLevel": true,
+    "pluginParams": [
+    ],
+    "params": [
+        {
+            "name": "company_id",
+            "label": "Company ID",
+            "description": "as defined on your Adobe account",
+            "type": "STRING"
+        },
+        {
+            "name": "how_to_find_id",
+            "description": "How to find what is [your company ID](https://experienceleague.adobe.com/en/docs/analytics/admin/admin-tools/company-settings/web-services-admin)",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "api_key",
+            "label": "API key",
+            "description": "",
+            "type": "STRING"
+        },
+        {
+            "name": "how_to_create_api_key",
+            "description": "How to create an [API key](https://developer.adobe.com/express/embed-sdk/docs/guides/quickstart/)",
+            "type": "SEPARATOR"
+        }
+    ]
+}
