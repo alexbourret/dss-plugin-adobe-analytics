@@ -6,7 +6,7 @@ from safe_logger import SafeLogger
 from records_limit import RecordsLimit
 
 
-logger = SafeLogger("adobe-analytics plugin", ["bearer_token"])
+logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key"])
 
 class AdobeAnalyticsConnector(Connector):
 
@@ -19,7 +19,11 @@ class AdobeAnalyticsConnector(Connector):
         object 'plugin_config' to the constructor
         """
         Connector.__init__(self, config, plugin_config)  # pass the parameters to the base class
-        logger.info("Starting plugin adobe-analytics v0.0.1-alpha.1 with config={}".format(logger.filter_secrets(config)))
+        logger.info(
+            "Starting plugin adobe-analytics v0.0.2 with config={}".format(
+                logger.filter_secrets(config)
+            )
+        )
         # {
         #     'metrics': [],
         #     'dimensions': ['variables/daterangeday'],
@@ -42,7 +46,7 @@ class AdobeAnalyticsConnector(Connector):
         #     self.metrics.append({"id": metric_value})
         self.dimensions = self.config.get("dimensions", [])
         auth_type = config.get("auth_type", "user_account")
-        user_account = config.get("user_account", {})
+        user_account = config.get(auth_type, {})
         bearer_token = user_account.get("bearer_token")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
