@@ -6,6 +6,7 @@ from safe_logger import SafeLogger
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer-token"])
 
+
 class AdobeClient():
     def __init__(self, company_id=None, api_key=None, access_token=None):
         server_url = "https://analytics.adobe.io/api/{}".format(company_id)
@@ -24,7 +25,7 @@ class AdobeClient():
 
     def get_next_page(self, endpoint):
         response = self.get(endpoint)
-        return response 
+        return response
 
     def get(self, endpoint, url=None, raw=False):
         response = self.client.get(endpoint, url=url, raw=raw)
@@ -39,10 +40,13 @@ class AdobeClient():
         return response
 
     def get_reports(self, report_id=None, start_date=None, end_date=None, metrics=None, dimensions=None):
-        logger.info("get_report:report_id={}, start_date={}, end_date={}, metrics={}, dimensions={}".format(report_id, start_date, end_date, metrics, dimensions))
+        logger.info("get_report:report_id={}, start_date={}, end_date={}, metrics={}, dimensions={}".format(
+                report_id, start_date, end_date, metrics, dimensions
+            )
+        )
         query = {
             "rsid": report_id,
-            "globalFilters":[
+            "globalFilters": [
                 {
                     "type": "dateRange",
                     "dateRange": "{}/{}".format(start_date, end_date)

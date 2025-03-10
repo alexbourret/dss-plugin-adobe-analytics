@@ -32,17 +32,6 @@
             "name": "how_to_find_id",
             "description": "How to find what is [your company ID](https://experienceleague.adobe.com/en/docs/analytics/admin/admin-tools/company-settings/web-services-admin)",
             "type": "SEPARATOR"
-        },
-        {
-            "name": "api_key",
-            "label": "API key",
-            "description": "",
-            "type": "STRING"
-        },
-        {
-            "name": "how_to_create_api_key",
-            "description": "How to create an [API key](https://developer.adobe.com/express/embed-sdk/docs/guides/quickstart/)",
-            "type": "SEPARATOR"
         }
     ]
 }
