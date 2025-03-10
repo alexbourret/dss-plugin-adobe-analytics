@@ -8,6 +8,7 @@ from records_limit import RecordsLimit
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key"])
 
+
 class AdobeAnalyticsConnector(Connector):
 
     def __init__(self, config, plugin_config):
@@ -81,7 +82,7 @@ class AdobeAnalyticsConnector(Connector):
         return None
 
     def generate_rows(self, dataset_schema=None, dataset_partitioning=None,
-                      partition_id=None, records_limit = -1):
+                      partition_id=None, records_limit=-1):
         logger.info("generate_rows, records_limit={}".format(records_limit))
         limit = RecordsLimit(records_limit)
         logger.info("Before get_reports")
@@ -124,9 +125,8 @@ class AdobeAnalyticsConnector(Connector):
         # https://analytics.adobe.io/api/[client id]/[endpoint]?rsid=[report suite id]
         # https://analytics.adobe.io/api/{}/reports
 
-
     def get_writer(self, dataset_schema=None, dataset_partitioning=None,
-                         partition_id=None, write_mode="OVERWRITE"):
+                   partition_id=None, write_mode="OVERWRITE"):
         """
         Returns a writer object to write in the dataset (or in a partition).
 
@@ -140,19 +140,16 @@ class AdobeAnalyticsConnector(Connector):
         """
         raise NotImplementedError
 
-
     def get_partitioning(self):
         """
         Return the partitioning schema that the connector defines.
         """
         raise NotImplementedError
 
-
     def list_partitions(self, partitioning):
         """Return the list of partitions for the partitioning scheme
         passed as parameter"""
         return []
-
 
     def partition_exists(self, partitioning, partition_id):
         """Return whether the partition passed as parameter exists
@@ -161,7 +158,6 @@ class AdobeAnalyticsConnector(Connector):
         in the connector definition
         """
         raise NotImplementedError
-
 
     def get_records_count(self, partitioning=None, partition_id=None):
         """
