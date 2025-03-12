@@ -1,6 +1,6 @@
 {
     "meta" : {
-        "label": "API key only",
+        "label": "OAuth Server-to-Server",
         "description": "",
         "icon": "icon-adobe_analytics"
     },
@@ -21,14 +21,27 @@
             "type": "SEPARATOR"
         },
         {
-            "name": "api_key",
-            "label": "API key",
+            "name": "client_id",
+            "label": "Client ID",
+            "description": "",
+            "type": "STRING"
+        },
+        {
+            "name": "client_secret",
+            "label": "Client secret",
             "description": "",
             "type": "PASSWORD"
         },
         {
+            "name": "scope",
+            "label": "Scopes",
+            "description": "",
+            "defaultValue": "openid,AdobeID,additional_info.projectedProductContext,additional_info.job_function,offline_access",
+            "type": "STRING"
+        },
+        {
             "name": "how_to_create_api_key",
-            "description": "How to create an [API key](https://developer.adobe.com/analytics-apis/docs/2.0/guides/)",
+            "description": "Setting up the [OAuth Server-to-Server credential](https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/implementation/#setting-up-the-oauth-server-to-server-credential)",
             "type": "SEPARATOR"
         }
     ]
