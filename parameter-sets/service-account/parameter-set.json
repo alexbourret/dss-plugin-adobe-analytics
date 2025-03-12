@@ -24,7 +24,7 @@
             "name": "api_key",
             "label": "API key",
             "description": "",
-            "type": "STRING"
+            "type": "PASSWORD"
         },
         {
             "name": "how_to_create_api_key",
