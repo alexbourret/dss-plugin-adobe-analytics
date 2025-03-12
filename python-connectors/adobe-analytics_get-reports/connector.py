@@ -6,7 +6,7 @@ from safe_logger import SafeLogger
 from records_limit import RecordsLimit
 
 
-logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key"])
+logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
 
 
 class AdobeAnalyticsConnector(Connector):
