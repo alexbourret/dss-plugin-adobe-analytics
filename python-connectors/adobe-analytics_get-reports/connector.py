@@ -21,7 +21,7 @@ class AdobeAnalyticsConnector(Connector):
         """
         Connector.__init__(self, config, plugin_config)  # pass the parameters to the base class
         logger.info(
-            "Starting plugin adobe-analytics v0.0.3 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.4 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
