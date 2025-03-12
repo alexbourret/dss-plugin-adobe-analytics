@@ -1,0 +1,48 @@
+{
+    "meta" : {
+        "label": "OAuth Server-to-Server",
+        "description": "",
+        "icon": "icon-adobe_analytics"
+    },
+    "defaultDefinableInline": true,
+    "defaultDefinableAtProjectLevel": true,
+    "pluginParams": [
+    ],
+    "params": [
+        {
+            "name": "company_id",
+            "label": "Company ID",
+            "description": "as defined on your Adobe account",
+            "type": "STRING"
+        },
+        {
+            "name": "how_to_find_id",
+            "description": "How to find what is [your company ID](https://experienceleague.adobe.com/en/docs/analytics/admin/admin-tools/company-settings/web-services-admin)",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "client_id",
+            "label": "Client ID",
+            "description": "",
+            "type": "STRING"
+        },
+        {
+            "name": "client_secret",
+            "label": "Client secret",
+            "description": "",
+            "type": "PASSWORD"
+        },
+        {
+            "name": "scope",
+            "label": "Scopes",
+            "description": "",
+            "defaultValue": "openid,AdobeID,additional_info.projectedProductContext,additional_info.job_function,offline_access",
+            "type": "STRING"
+        },
+        {
+            "name": "how_to_create_api_key",
+            "description": "Setting up the [OAuth Server-to-Server credential](https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/implementation/#setting-up-the-oauth-server-to-server-credential)",
+            "type": "SEPARATOR"
+        }
+    ]
+}

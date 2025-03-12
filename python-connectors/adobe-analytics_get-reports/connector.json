@@ -25,6 +25,10 @@
                 {
                     "value": "service_account",
                     "label": "API key only"
+                },
+                {
+                    "value": "server_to_server",
+                    "label": "Server-to-Server"
                 }
             ]
         },
@@ -41,6 +45,13 @@
             "type": "PRESET",
             "parameterSetId": "service-account",
             "visibilityCondition": "model.auth_type == 'service_account'"
+        },
+        {
+            "name": "server_to_server",
+            "label": "Server-to-Server",
+            "type": "PRESET",
+            "parameterSetId": "server-to-server",
+            "visibilityCondition": "model.auth_type == 'server_to_server'"
         },
         {
             "name": "report_id",

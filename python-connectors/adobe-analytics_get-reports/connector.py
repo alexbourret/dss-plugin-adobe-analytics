@@ -1,7 +1,7 @@
 from dataiku.connector import Connector
 from mock import Mock
 from adobe_analytics_common import reorder_response
-from adobe_client import AdobeClient
+from adobe_client import AdobeClient, generate_access_token
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
 
@@ -47,10 +47,14 @@ class AdobeAnalyticsConnector(Connector):
         #     self.metrics.append({"id": metric_value})
         self.dimensions = self.config.get("dimensions", [])
         auth_type = config.get("auth_type", "user_account")
+        logger.info("auth_type={}".format(auth_type))
         user_account = config.get(auth_type, {})
         bearer_token = user_account.get("bearer_token")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
+        if auth_type == "server_to_server":
+            logger.info("auth type is server_to_server")
+            bearer_token = generate_access_token(user_account)
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,

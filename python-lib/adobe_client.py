@@ -4,7 +4,7 @@ from api_client import APIClient
 from safe_logger import SafeLogger
 
 
-logger = SafeLogger("adobe-analytics plugin", ["bearer-token"])
+logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token"])
 
 
 class AdobeClient():
@@ -67,3 +67,24 @@ class AdobeClient():
             message = response.get("message")
             raise Exception("There was an error {}, {}. Please send the logs to the developpers.".format(error_code, message))
         return response
+
+
+def generate_access_token(user_account):
+    import requests
+    client_id = user_account.get("client_id")
+    client_secret = user_account.get("client_secret")
+    scope = user_account.get("scope")
+    data = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "grant_type": "client_credentials",
+        "scope": scope
+    }
+    response = requests.post("https://ims-na1.adobelogin.com/ims/token/v3", data=data)
+    status_code = response.status_code
+    print("generate_access_token status:{}".format(status_code))
+    token = response.json()#logger.info("generate_access_token response:{}".format(logger.filter_secrets(token)))
+    print("generate_access_token response:{}".format(token))
+    if "error" in token:
+        raise Exception("Error {} ({}): {}".format(status_code, token.get("error"), token.get("error_description", "")))
+    return token.get("access_token")
