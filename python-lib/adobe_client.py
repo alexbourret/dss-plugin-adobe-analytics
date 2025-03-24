@@ -4,7 +4,7 @@ from api_client import APIClient
 from safe_logger import SafeLogger
 
 
-logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token"])
+logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "client_secret"])
 
 
 class AdobeClient():
@@ -71,6 +71,8 @@ class AdobeClient():
 
 def generate_access_token(user_account):
     import requests
+    logger.info("Generating access token")
+    url = "https://ims-na1.adobelogin.com/ims/token/v3"
     client_id = user_account.get("client_id")
     client_secret = user_account.get("client_secret")
     scope = user_account.get("scope")
@@ -80,11 +82,12 @@ def generate_access_token(user_account):
         "grant_type": "client_credentials",
         "scope": scope
     }
-    response = requests.post("https://ims-na1.adobelogin.com/ims/token/v3", data=data)
+    logger.info("data={}".format(logger.filter_secrets(data)))
+    response = requests.post(url=url, data=data)
     status_code = response.status_code
     print("generate_access_token status:{}".format(status_code))
-    token = response.json()#logger.info("generate_access_token response:{}".format(logger.filter_secrets(token)))
-    print("generate_access_token response:{}".format(token))
+    token = response.json()
+    print("generate_access_token response:{}".format(logger.filter_secrets(token)))
     if "error" in token:
         raise Exception("Error {} ({}): {}".format(status_code, token.get("error"), token.get("error_description", "")))
     return token.get("access_token")
