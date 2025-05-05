@@ -36,6 +36,8 @@ class AdobeAnalyticsConnector(Connector):
         #     'report_id': 'azer'
         # }
         self.report_id = config.get("report_id")
+        if not self.report_id:
+            raise Exception("A valid Report Suite ID needs to be set")
         self.start_date = config.get("start_date")
         self.end_date = config.get("end_date")
         self.metrics = config.get("metrics", [])
