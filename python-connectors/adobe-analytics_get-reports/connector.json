@@ -55,7 +55,7 @@
         },
         {
             "name": "report_id",
-            "label": "Report ID",
+            "label": "Report Suite ID",
             "type": "STRING"
         },
         {
