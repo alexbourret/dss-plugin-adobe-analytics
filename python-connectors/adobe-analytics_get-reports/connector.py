@@ -15,7 +15,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.5 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.6 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
