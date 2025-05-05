@@ -4,6 +4,7 @@ from adobe_analytics_common import reorder_response
 from adobe_client import AdobeClient, generate_access_token
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
+from diagnostics import get_kernel_external_ip, get_kernel_internal_ip, test_urls
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -12,19 +13,18 @@ logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "clien
 class AdobeAnalyticsConnector(Connector):
 
     def __init__(self, config, plugin_config):
-        """
-        The configuration parameters set up by the user in the settings tab of the
-        dataset are passed as a json object 'config' to the constructor.
-        The static configuration parameters set up by the developer in the optional
-        file settings.json at the root of the plugin directory are passed as a json
-        object 'plugin_config' to the constructor
-        """
-        Connector.__init__(self, config, plugin_config)  # pass the parameters to the base class
+        Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.4 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.5 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
+        logger.info("Running diagnostics")
+        logger.info("External IP address:")
+        logger.info("External IP={}".format(get_kernel_external_ip()))
+        logger.info("Internal IP={}".format(get_kernel_internal_ip()))
+        logger.info("Pinging relevant external addresses:")
+        test_urls()
         # {
         #     'metrics': [],
         #     'dimensions': ['variables/daterangeday'],
