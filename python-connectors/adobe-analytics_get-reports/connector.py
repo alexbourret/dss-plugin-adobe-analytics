@@ -4,7 +4,7 @@ from adobe_analytics_common import reorder_response
 from adobe_client import AdobeClient, generate_access_token
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
-from diagnostics import get_kernel_external_ip, get_kernel_internal_ip, test_urls
+from diagnostics import get_kernel_internal_ip, test_urls
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -20,8 +20,7 @@ class AdobeAnalyticsConnector(Connector):
             )
         )
         logger.info("Running diagnostics")
-        logger.info("External IP address:")
-        logger.info("External IP={}".format(get_kernel_external_ip()))
+        # logger.info("External IP={}".format(get_kernel_external_ip()))
         logger.info("Internal IP={}".format(get_kernel_internal_ip()))
         logger.info("Pinging relevant external addresses:")
         test_urls()
