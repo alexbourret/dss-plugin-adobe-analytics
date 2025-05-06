@@ -20,7 +20,7 @@ def get_kernel_external_ip():
 
 
 def get_kernel_internal_ip():
-    target_server = "8.8.8.8"
+    target_server = "10.254.254.254"
     logger.info("get_kernel_internal_ip on {}".format(target_server))
     socket_name = ""
     try:
