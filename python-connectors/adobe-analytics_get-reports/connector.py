@@ -4,7 +4,7 @@ from adobe_analytics_common import reorder_response
 from adobe_client import AdobeClient, generate_access_token
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
-from diagnostics import get_kernel_internal_ip, test_urls
+from diagnostics import get_kernel_internal_ip, test_urls, decode_jwt
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -51,15 +51,19 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("auth_type={}".format(auth_type))
         user_account = config.get(auth_type, {})
         bearer_token = user_account.get("bearer_token")
+        organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
         if auth_type == "server_to_server":
             logger.info("auth type is server_to_server")
             bearer_token = generate_access_token(user_account)
+            logger.info("Decoded unsigned token : {}".format(decode_jwt(bearer_token)))
+            api_key = user_account.get("client_id")
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,
-            access_token=bearer_token
+            access_token=bearer_token,
+            organization_id=organization_id
         )
 
     def get_read_schema(self):

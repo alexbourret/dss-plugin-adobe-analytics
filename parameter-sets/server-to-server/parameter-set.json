@@ -27,6 +27,17 @@
             "type": "STRING"
         },
         {
+            "name": "organization_id",
+            "label": "Organization ID",
+            "description": "",
+            "type": "STRING"
+        },
+        {
+            "name": "how_to_find_org_id",
+            "description": "How to find what is [your Organization ID](https://developer.adobe.com/experience-cloud/cloud-manager/guides/getting-started/authentication/authentication/)",
+            "type": "SEPARATOR"
+        },
+        {
             "name": "client_secret",
             "label": "Client secret",
             "description": "",
