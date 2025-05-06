@@ -41,6 +41,7 @@ class APIClient():
             full_url = url
         else:
             full_url = self.get_full_url(endpoint)
+        logger.info("posting url={}, params={}, json={}, data={}".format(full_url, params, json, data))
         response = self.session.post(
             full_url,
             params=params,

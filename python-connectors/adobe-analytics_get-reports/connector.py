@@ -4,7 +4,7 @@ from adobe_analytics_common import reorder_response
 from adobe_client import AdobeClient, generate_access_token
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
-from diagnostics import get_kernel_external_ip, get_kernel_internal_ip, test_urls
+from diagnostics import get_kernel_internal_ip, test_urls, decode_jwt
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -15,13 +15,12 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.5 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.6 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
         logger.info("Running diagnostics")
-        logger.info("External IP address:")
-        logger.info("External IP={}".format(get_kernel_external_ip()))
+        # logger.info("External IP={}".format(get_kernel_external_ip()))
         logger.info("Internal IP={}".format(get_kernel_internal_ip()))
         logger.info("Pinging relevant external addresses:")
         test_urls()
@@ -36,6 +35,8 @@ class AdobeAnalyticsConnector(Connector):
         #     'report_id': 'azer'
         # }
         self.report_id = config.get("report_id")
+        if not self.report_id:
+            raise Exception("A valid Report Suite ID needs to be set")
         self.start_date = config.get("start_date")
         self.end_date = config.get("end_date")
         self.metrics = config.get("metrics", [])
@@ -50,15 +51,19 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("auth_type={}".format(auth_type))
         user_account = config.get(auth_type, {})
         bearer_token = user_account.get("bearer_token")
+        organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
         if auth_type == "server_to_server":
             logger.info("auth type is server_to_server")
             bearer_token = generate_access_token(user_account)
+            logger.info("Decoded unsigned token : {}".format(decode_jwt(bearer_token)))
+            api_key = user_account.get("client_id")
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,
-            access_token=bearer_token
+            access_token=bearer_token,
+            organization_id=organization_id
         )
 
     def get_read_schema(self):

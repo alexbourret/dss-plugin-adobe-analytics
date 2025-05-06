@@ -8,12 +8,12 @@ logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "
 
 
 class AdobeClient():
-    def __init__(self, company_id=None, api_key=None, access_token=None):
+    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None):
         server_url = "https://analytics.adobe.io/api/{}".format(company_id)
         pagination = AdobePagination()
         self.client = APIClient(
             server_url=server_url,
-            auth=AdobeAuth(api_key=api_key, bearer_token=access_token),
+            auth=AdobeAuth(api_key=api_key, bearer_token=access_token, organization_id=organization_id),
             pagination=pagination,
             max_number_of_retries=1
         )

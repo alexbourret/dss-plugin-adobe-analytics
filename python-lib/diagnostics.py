@@ -20,7 +20,7 @@ def get_kernel_external_ip():
 
 
 def get_kernel_internal_ip():
-    target_server = "8.8.8.8"
+    target_server = "10.254.254.254"
     logger.info("get_kernel_internal_ip on {}".format(target_server))
     socket_name = ""
     try:
@@ -52,3 +52,21 @@ def test_urls():
             logger.info("answer={}".format(response.content))
         except Exception as error:
             logger.warning("Error {}".format(error))
+
+
+def decode_jwt(jwt_token):
+    try:
+        import base64
+        import json
+        sub_tokens = jwt_token.split('.')
+        if len(sub_tokens) < 2:
+            logger.error("JWT format is wrong")
+            return {}
+        token_of_interest = sub_tokens[1]
+        padded_token = token_of_interest + "="*divmod(len(token_of_interest), 4)[1]
+        decoded_token = base64.urlsafe_b64decode(padded_token.encode('utf-8'))
+        json_token = json.loads(decoded_token)
+        return json_token
+    except Exception as error:
+        logger.error("Could not decode JWT token ({})".format(error))
+    return {}
