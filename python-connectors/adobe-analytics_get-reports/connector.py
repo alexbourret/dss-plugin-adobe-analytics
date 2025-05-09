@@ -21,9 +21,9 @@ class AdobeAnalyticsConnector(Connector):
         )
         logger.info("Running diagnostics")
         # logger.info("External IP={}".format(get_kernel_external_ip()))
-        logger.info("Internal IP={}".format(get_kernel_internal_ip()))
-        logger.info("Pinging relevant external addresses:")
-        test_urls()
+        # logger.info("Internal IP={}".format(get_kernel_internal_ip()))
+        # logger.info("Pinging relevant external addresses:")
+        # test_urls()
         # {
         #     'metrics': [],
         #     'dimensions': ['variables/daterangeday'],
@@ -57,7 +57,7 @@ class AdobeAnalyticsConnector(Connector):
         if auth_type == "server_to_server":
             logger.info("auth type is server_to_server")
             bearer_token = generate_access_token(user_account)
-            logger.info("Decoded unsigned token : {}".format(decode_jwt(bearer_token)))
+            # logger.info("Decoded unsigned token : {}".format(decode_jwt(bearer_token)))
             api_key = user_account.get("client_id")
         self.client = AdobeClient(
             company_id=company_id,
