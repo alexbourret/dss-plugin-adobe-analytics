@@ -1,13 +1,13 @@
 {
     "id": "adobe-analytics",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "meta": {
         "label": "Adobe analytics",
         "description": "",
         "author": "admin",
         "icon": "icon-adobe_analytics",
         "tags": [],
-        "url": "",
+        "url": "https://github.com/alexbourret/dss-plugin-adobe-analytics/blob/master/README.md",
         "licenseInfo": "Apache Software License"
     }
 }
