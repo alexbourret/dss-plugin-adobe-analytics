@@ -68,6 +68,11 @@ class AdobeClient():
             raise Exception("There was an error {}, {}. Please send the logs to the developpers.".format(error_code, message))
         return response
 
+    def list_report_suites(self):
+        # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
+        response = self.get("reportsuites/collections/suites")
+        return response
+
 
 def generate_access_token(user_account):
     import requests
