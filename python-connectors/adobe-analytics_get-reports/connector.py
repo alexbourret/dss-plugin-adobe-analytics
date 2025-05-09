@@ -65,6 +65,8 @@ class AdobeAnalyticsConnector(Connector):
             access_token=bearer_token,
             organization_id=organization_id
         )
+        report_suites = self.client.list_report_suites()
+        logger.info("report suites:{}".format(report_suites))
 
     def get_read_schema(self):
         """
