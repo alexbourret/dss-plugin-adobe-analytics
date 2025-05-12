@@ -15,7 +15,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.7 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.8 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -37,16 +37,43 @@ class AdobeAnalyticsConnector(Connector):
         self.report_id = config.get("report_id")
         if not self.report_id:
             raise Exception("A valid Report Suite ID needs to be set")
-        self.start_date = config.get("start_date")
-        self.end_date = config.get("end_date")
-        self.metrics = config.get("metrics", [])
+        self.start_date = dss_date_to_adobe(config.get("start_date"))
+        self.end_date = dss_date_to_adobe(config.get("end_date"))
+        metrics = config.get("metrics", [])
+        print("ALX:metrics={}".format(metrics))
+        # [{
+        #     '$$hashKey': 'object:583',
+        #     'metric_name': 'metrics/visits'
+        # }, {
+        #     '$$hashKey': 'object:605',
+        #     'metric_name': 'metrics/pageviews',
+        #     'metric_sort': 'asc'
+        # }, {
+        #     '$$hashKey': 'object:627',
+        #     'metric_name': 'metrics/visitors',
+        #     'metric_sort': 'desc'
+        # }]
+        column_index = 0
+        self.metrics = []
+        for metric in metrics:
+            metric_id = metric.get("metric_id")
+            metric_sort = metric.get("metric_sort")
+            final_metric = {
+                "columnId": "{}".format(column_index),
+                "id": metric_id
+            }
+            if metric_sort:
+                final_metric["sort"] = metric_sort
+            self.metrics.append(final_metric)
+            column_index += 1
+        print("ALX:self.metrics={}".format(self.metrics))
         # self.metrics = []
         # print("ALX:metrics={}".format(metrics))
         # for metric in metrics:
         #     print("ALX:metric={}".format(metric))
         #     metric_value = metric.get("value")
         #     self.metrics.append({"id": metric_value})
-        self.dimensions = self.config.get("dimensions", [])
+        self.dimension = self.config.get("dimension")
         auth_type = config.get("auth_type", "user_account")
         logger.info("auth_type={}".format(auth_type))
         user_account = config.get(auth_type, {})
@@ -67,6 +94,7 @@ class AdobeAnalyticsConnector(Connector):
         )
         report_suites = self.client.list_report_suites()
         logger.info("report suites:{}".format(report_suites))
+        self.client.list_report_suites_all_pages()
 
     def get_read_schema(self):
         """
@@ -102,7 +130,7 @@ class AdobeAnalyticsConnector(Connector):
             start_date=self.start_date,
             end_date=self.end_date,
             metrics=self.metrics,
-            dimensions=self.dimensions
+            dimension=self.dimension
         )
         logger.info("json_response={}".format(json_response))
         rows = reorder_response(json_response, self.metrics)
@@ -193,3 +221,10 @@ class CustomDatasetWriter(object):
 
     def close(self):
         pass
+
+
+def dss_date_to_adobe(dss_date):
+    if not dss_date or not isinstance(dss_date, str):
+        return None
+    if dss_date.endswith("Z"):
+        return dss_date[:-1]

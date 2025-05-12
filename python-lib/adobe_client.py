@@ -27,8 +27,8 @@ class AdobeClient():
         response = self.get(endpoint)
         return response
 
-    def get(self, endpoint, url=None, raw=False):
-        response = self.client.get(endpoint, url=url, raw=raw)
+    def get(self, endpoint, url=None, params=None, raw=False):
+        response = self.client.get(endpoint, url=url, params=params, raw=raw)
         return response
 
     def post(self, endpoint, url=None, raw=False, params=None, data=None, json=None, headers=None):
@@ -39,9 +39,9 @@ class AdobeClient():
         response = self.client.patch(endpoint, url=url, raw=raw, params=params, data=data, json=json, headers=headers)
         return response
 
-    def get_reports(self, report_id=None, start_date=None, end_date=None, metrics=None, dimensions=None):
-        logger.info("get_report:report_id={}, start_date={}, end_date={}, metrics={}, dimensions={}".format(
-                report_id, start_date, end_date, metrics, dimensions
+    def get_reports(self, report_id=None, start_date=None, end_date=None, metrics=None, dimension=None):
+        logger.info("get_report:report_id={}, start_date={}, end_date={}, metrics={}, dimension={}".format(
+                report_id, start_date, end_date, metrics, dimension
             )
         )
         query = {
@@ -55,9 +55,8 @@ class AdobeClient():
             "metricContainer": {
                 "metrics": metrics
             },
-            "dimension": dimensions[0],
+            "dimension": dimension,
             "settings": {
-                "dimensionSort": "asc"
             }
         }
         logger.info("query={}".format(query))
@@ -71,6 +70,21 @@ class AdobeClient():
     def list_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
         response = self.get("reportsuites/collections/suites")
+        return response
+
+    def list_report_suites_all_pages(self):
+        # No doc on pagination, so trying things...
+        # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
+        response = self.get("reportsuites/collections/suites", params={"page": 1})
+        logger.info("page1:{}".format(response))
+        response = self.get("reportsuites/collections/suites", params={"page": 2})
+        logger.info("page2:{}".format(response))
+        response = self.get("reportsuites/collections/suites", params={"page": 3})
+        logger.info("page3:{}".format(response))
+        response = self.get("reportsuites/collections/suites", params={"page": 4})
+        logger.info("page4:{}".format(response))
+        response = self.get("reportsuites/collections/suites", params={"page": 5})
+        logger.info("page5:{}".format(response))
         return response
 
 

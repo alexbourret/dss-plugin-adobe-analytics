@@ -10,7 +10,7 @@
     "params": [
         {
             "name": "version_number",
-            "label": "Alpha.7",
+            "label": "Alpha.8",
             "type": "SEPARATOR"
         },
         {
@@ -70,29 +70,63 @@
         },
         {
             "name": "metrics",
-            "type": "MULTISELECT",
-            "selectChoices": [
+            "label": "Metrics",
+            "type": "OBJECT_LIST",
+            "subParams": [
                 {
-                    "value": "metrics/visits",
-                    "label": "Visits"
+                    "name": "metric_id",
+                    "label": "Name",
+                    "description": "",
+                    "type": "SELECT",
+                    "selectChoices": [
+                        {
+                            "value": "metrics/visits",
+                            "label": "Visits"
+                        },
+                        {
+                            "value": "metrics/pageviews",
+                            "label": "Page views"
+                        },
+                        {
+                            "value": "metrics/visitors",
+                            "label": "Visitors"
+                        }
+                    ]
                 },
                 {
-                    "value": "metrics/pageviews",
-                    "label": "Page views"
-                },
-                {
-                    "value": "metrics/visitors",
-                    "label": "Visitors"
+                    "name": "metric_sort",
+                    "label": "Sorting",
+                    "description": "",
+                    "type": "SELECT",
+                    "selectChoices": [
+                        {
+                            "value": null,
+                            "label": "-"
+                        },
+                        {
+                            "value": "asc",
+                            "label": "Ascending"
+                        },
+                        {
+                            "value": "desc",
+                            "label": "Descending"
+                        }
+                    ]
                 }
             ]
         },
         {
-            "name": "dimensions",
-            "type": "MULTISELECT",
+            "name": "dimension",
+            "label": "Dimension",
+            "type": "SELECT",
             "selectChoices": [
                 {
                     "value": "variables/daterangeday",
                     "label": "Date range day"
+                },
+                {
+                    "value": "variables/page",
+                    "label": "Page"
                 }
             ]
         }
