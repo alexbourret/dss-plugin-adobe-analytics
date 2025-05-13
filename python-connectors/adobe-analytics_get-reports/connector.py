@@ -95,6 +95,20 @@ class AdobeAnalyticsConnector(Connector):
         except Exception as error:
             logger.error("Error {} while listing report suites".format(error))
 
+        logger.info("Testing pagination on metrics for {}...".format(self.report_id))
+        try:
+            report_metrics = self.client.list_report_metrics(self.report_id)
+            logger.info("report_metrics={}".format(report_metrics))
+        except Exception as error:
+            logger.error("Error {} while listing report metrics".format(error))
+
+        logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
+        try:
+            report_dimensions = self.client.list_report_dimensions(self.report_id)
+            logger.info("report_metrics={}".format(report_dimensions))
+        except Exception as error:
+            logger.error("Error {} while listing report dimensions".format(error))
+
     def get_read_schema(self):
         """
         Returns the schema that this connector generates when returning rows.

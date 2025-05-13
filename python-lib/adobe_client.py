@@ -85,6 +85,31 @@ class AdobeClient():
         logger.info("list_report_suites looped {} times".format(row_index))
         return report_suites
 
+    def list_report_metrics(self, rsid):
+        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/metrics/
+        metrics = []
+        for row in self.client.get_next_row(
+                "metrics",
+                params={
+                    "rsid": rsid,
+                    "expansion": "allowedForReporting"
+                }
+        ):
+            metrics.append(row)
+        return metrics
+
+    def list_report_dimensions(self, rsid):
+        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/dimensions/
+        dimensions = []
+        for row in self.client.get_next_row(
+                "dimensions",
+                params={
+                    "rsid": rsid
+                }
+        ):
+            dimensions.append(row)
+        return dimensions
+
     def list_report_suites_all_pages(self):
         # No doc on pagination, so trying things...
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
