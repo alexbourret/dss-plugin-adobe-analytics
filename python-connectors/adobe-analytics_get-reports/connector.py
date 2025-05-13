@@ -4,7 +4,6 @@ from adobe_analytics_common import reorder_response
 from adobe_client import AdobeClient, generate_access_token
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
-from diagnostics import get_kernel_internal_ip, test_urls, decode_jwt
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -19,7 +18,7 @@ class AdobeAnalyticsConnector(Connector):
                 logger.filter_secrets(config)
             )
         )
-        logger.info("Running diagnostics")
+        # logger.info("Running diagnostics")
         # logger.info("External IP={}".format(get_kernel_external_ip()))
         # logger.info("Internal IP={}".format(get_kernel_internal_ip()))
         # logger.info("Pinging relevant external addresses:")
@@ -55,6 +54,7 @@ class AdobeAnalyticsConnector(Connector):
         # }]
         column_index = 0
         self.metrics = []
+        self.metrics_names = []
         for metric in metrics:
             metric_id = metric.get("metric_id")
             metric_sort = metric.get("metric_sort")
@@ -65,8 +65,10 @@ class AdobeAnalyticsConnector(Connector):
             if metric_sort:
                 final_metric["sort"] = metric_sort
             self.metrics.append(final_metric)
+            self.metrics_names.append(metric_id)
             column_index += 1
         print("ALX:self.metrics={}".format(self.metrics))
+        print("ALX:self.metrics_names={}".format(self.metrics_names))
         # self.metrics = []
         # print("ALX:metrics={}".format(metrics))
         # for metric in metrics:
@@ -84,7 +86,6 @@ class AdobeAnalyticsConnector(Connector):
         if auth_type == "server_to_server":
             logger.info("auth type is server_to_server")
             bearer_token = generate_access_token(user_account)
-            # logger.info("Decoded unsigned token : {}".format(decode_jwt(bearer_token)))
             api_key = user_account.get("client_id")
         self.client = AdobeClient(
             company_id=company_id,
@@ -92,9 +93,9 @@ class AdobeAnalyticsConnector(Connector):
             access_token=bearer_token,
             organization_id=organization_id
         )
-        report_suites = self.client.list_report_suites()
-        logger.info("report suites:{}".format(report_suites))
-        self.client.list_report_suites_all_pages()
+        # report_suites = self.client.list_report_suites()
+        # logger.info("report suites:{}".format(report_suites))
+        # self.client.list_report_suites_all_pages()
 
     def get_read_schema(self):
         """
@@ -133,7 +134,7 @@ class AdobeAnalyticsConnector(Connector):
             dimension=self.dimension
         )
         logger.info("json_response={}".format(json_response))
-        rows = reorder_response(json_response, self.metrics)
+        rows = reorder_response(json_response, self.metrics_names)
         # rows = reorder_response(Mock.JSON_RESPONSE, ['metrics/pageviews','metrics/visits','metrics/visitors'])
         for row in rows:
             yield row
