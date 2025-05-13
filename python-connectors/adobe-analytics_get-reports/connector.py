@@ -14,7 +14,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.8 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.9 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -39,7 +39,7 @@ class AdobeAnalyticsConnector(Connector):
         self.start_date = dss_date_to_adobe(config.get("start_date"))
         self.end_date = dss_date_to_adobe(config.get("end_date"))
         metrics = config.get("metrics", [])
-        print("ALX:metrics={}".format(metrics))
+        logger.info("ALX:metrics={}".format(metrics))
         # [{
         #     '$$hashKey': 'object:583',
         #     'metric_name': 'metrics/visits'
@@ -67,14 +67,9 @@ class AdobeAnalyticsConnector(Connector):
             self.metrics.append(final_metric)
             self.metrics_names.append(metric_id)
             column_index += 1
-        print("ALX:self.metrics={}".format(self.metrics))
-        print("ALX:self.metrics_names={}".format(self.metrics_names))
-        # self.metrics = []
-        # print("ALX:metrics={}".format(metrics))
-        # for metric in metrics:
-        #     print("ALX:metric={}".format(metric))
-        #     metric_value = metric.get("value")
-        #     self.metrics.append({"id": metric_value})
+        logger.info("ALX:self.metrics={}".format(self.metrics))
+        logger.info("ALX:self.metrics_names={}".format(self.metrics_names))
+
         self.dimension = self.config.get("dimension")
         auth_type = config.get("auth_type", "user_account")
         logger.info("auth_type={}".format(auth_type))
@@ -93,9 +88,12 @@ class AdobeAnalyticsConnector(Connector):
             access_token=bearer_token,
             organization_id=organization_id
         )
-        # report_suites = self.client.list_report_suites()
-        # logger.info("report suites:{}".format(report_suites))
-        # self.client.list_report_suites_all_pages()
+        logger.info("Testing pagination on report_suites...")
+        try:
+            report_suites = self.client.list_report_suites()
+            logger.info("report_suites={}".format(report_suites))
+        except Exception as error:
+            logger.error("Error {} while listing report suites".format(error))
 
     def get_read_schema(self):
         """
