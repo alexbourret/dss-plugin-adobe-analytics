@@ -18,6 +18,12 @@ class AdobePagination():
         try:
             logger.info("decoding json")
             json_response = response.json()
+            if isinstance(json_response, list):
+                # The data return is an array,
+                # we can assume this is the only page
+                return False
+            if "error_code" in json_response:
+                return False
             is_last_page = json_response.get("lastPage", True)
             self.page_offset = json_response.get("number")
             logger.info("is_last_page={}".format(is_last_page))
