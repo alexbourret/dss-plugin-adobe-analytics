@@ -69,8 +69,46 @@ class AdobeClient():
 
     def list_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
-        response = self.get("reportsuites/collections/suites")
-        return response
+        # response = self.get("reportsuites/collections/suites")
+        report_suites = []
+        row_index = 0
+        for row in self.client.get_next_row("reportsuites/collections/suites", data_path="content"):
+            report_suites.append(row)
+            row_index += 1
+            if row is None:
+                logger.error("empty row, stopping here")
+                break
+            if row_index > 1000:
+                logger.error("loop in list_report_suites")
+                # just exploring, we don't want to block the plugin for that
+                break
+        logger.info("list_report_suites looped {} times".format(row_index))
+        return report_suites
+
+    def list_report_metrics(self, rsid):
+        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/metrics/
+        metrics = []
+        for row in self.client.get_next_row(
+                "metrics",
+                params={
+                    "rsid": rsid,
+                    "expansion": "allowedForReporting"
+                }
+        ):
+            metrics.append(row)
+        return metrics
+
+    def list_report_dimensions(self, rsid):
+        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/dimensions/
+        dimensions = []
+        for row in self.client.get_next_row(
+                "dimensions",
+                params={
+                    "rsid": rsid
+                }
+        ):
+            dimensions.append(row)
+        return dimensions
 
     def list_report_suites_all_pages(self):
         # No doc on pagination, so trying things...
@@ -104,9 +142,9 @@ def generate_access_token(user_account):
     logger.info("data={}".format(logger.filter_secrets(data)))
     response = requests.post(url=url, data=data)
     status_code = response.status_code
-    print("generate_access_token status:{}".format(status_code))
+    logger.info("generate_access_token status:{}".format(status_code))
     token = response.json()
-    print("generate_access_token response:{}".format(logger.filter_secrets(token)))
+    logger.info("generate_access_token response:{}".format(logger.filter_secrets(token)))
     if "error" in token:
         raise Exception("Error {} ({}): {}".format(status_code, token.get("error"), token.get("error_description", "")))
     return token.get("access_token")

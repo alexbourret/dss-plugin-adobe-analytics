@@ -12,7 +12,30 @@ class AdobePagination():
         self.page_offset = None
 
     def has_next_page(self, response, items_retrieved):
-        return False
+        if response is None:
+            logger.info("has_next_page initialisation")
+            return True
+        try:
+            logger.info("decoding json")
+            json_response = response.json()
+            if isinstance(json_response, list):
+                # The data return is an array,
+                # we can assume this is the only page
+                return False
+            if "error_code" in json_response:
+                return False
+            is_last_page = json_response.get("lastPage", True)
+            self.page_offset = json_response.get("number")
+            logger.info("is_last_page={}".format(is_last_page))
+            return is_last_page
+        except Exception:
+            return False
 
     def get_paging_parameters(self, current_params):
-        return {}
+        params = {}
+        if isinstance(current_params, dict):
+            params.update(current_params)
+        if isinstance(self.page_offset, int):
+            self.page_offset += 1
+            params["page"] = self.page_offset
+        return params

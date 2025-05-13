@@ -4,7 +4,6 @@ from adobe_analytics_common import reorder_response
 from adobe_client import AdobeClient, generate_access_token
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
-from diagnostics import get_kernel_internal_ip, test_urls, decode_jwt
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -15,11 +14,11 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.8 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.9 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
-        logger.info("Running diagnostics")
+        # logger.info("Running diagnostics")
         # logger.info("External IP={}".format(get_kernel_external_ip()))
         # logger.info("Internal IP={}".format(get_kernel_internal_ip()))
         # logger.info("Pinging relevant external addresses:")
@@ -40,7 +39,7 @@ class AdobeAnalyticsConnector(Connector):
         self.start_date = dss_date_to_adobe(config.get("start_date"))
         self.end_date = dss_date_to_adobe(config.get("end_date"))
         metrics = config.get("metrics", [])
-        print("ALX:metrics={}".format(metrics))
+        logger.info("ALX:metrics={}".format(metrics))
         # [{
         #     '$$hashKey': 'object:583',
         #     'metric_name': 'metrics/visits'
@@ -55,6 +54,7 @@ class AdobeAnalyticsConnector(Connector):
         # }]
         column_index = 0
         self.metrics = []
+        self.metrics_names = []
         for metric in metrics:
             metric_id = metric.get("metric_id")
             metric_sort = metric.get("metric_sort")
@@ -65,14 +65,11 @@ class AdobeAnalyticsConnector(Connector):
             if metric_sort:
                 final_metric["sort"] = metric_sort
             self.metrics.append(final_metric)
+            self.metrics_names.append(metric_id)
             column_index += 1
-        print("ALX:self.metrics={}".format(self.metrics))
-        # self.metrics = []
-        # print("ALX:metrics={}".format(metrics))
-        # for metric in metrics:
-        #     print("ALX:metric={}".format(metric))
-        #     metric_value = metric.get("value")
-        #     self.metrics.append({"id": metric_value})
+        logger.info("ALX:self.metrics={}".format(self.metrics))
+        logger.info("ALX:self.metrics_names={}".format(self.metrics_names))
+
         self.dimension = self.config.get("dimension")
         auth_type = config.get("auth_type", "user_account")
         logger.info("auth_type={}".format(auth_type))
@@ -84,7 +81,6 @@ class AdobeAnalyticsConnector(Connector):
         if auth_type == "server_to_server":
             logger.info("auth type is server_to_server")
             bearer_token = generate_access_token(user_account)
-            # logger.info("Decoded unsigned token : {}".format(decode_jwt(bearer_token)))
             api_key = user_account.get("client_id")
         self.client = AdobeClient(
             company_id=company_id,
@@ -92,9 +88,26 @@ class AdobeAnalyticsConnector(Connector):
             access_token=bearer_token,
             organization_id=organization_id
         )
-        report_suites = self.client.list_report_suites()
-        logger.info("report suites:{}".format(report_suites))
-        self.client.list_report_suites_all_pages()
+        logger.info("Testing pagination on report_suites...")
+        try:
+            report_suites = self.client.list_report_suites()
+            logger.info("report_suites={}".format(report_suites))
+        except Exception as error:
+            logger.error("Error {} while listing report suites".format(error))
+
+        logger.info("Testing pagination on metrics for {}...".format(self.report_id))
+        try:
+            report_metrics = self.client.list_report_metrics(self.report_id)
+            logger.info("report_metrics={}".format(report_metrics))
+        except Exception as error:
+            logger.error("Error {} while listing report metrics".format(error))
+
+        logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
+        try:
+            report_dimensions = self.client.list_report_dimensions(self.report_id)
+            logger.info("report_metrics={}".format(report_dimensions))
+        except Exception as error:
+            logger.error("Error {} while listing report dimensions".format(error))
 
     def get_read_schema(self):
         """
@@ -133,7 +146,7 @@ class AdobeAnalyticsConnector(Connector):
             dimension=self.dimension
         )
         logger.info("json_response={}".format(json_response))
-        rows = reorder_response(json_response, self.metrics)
+        rows = reorder_response(json_response, self.metrics_names)
         # rows = reorder_response(Mock.JSON_RESPONSE, ['metrics/pageviews','metrics/visits','metrics/visitors'])
         for row in rows:
             yield row
