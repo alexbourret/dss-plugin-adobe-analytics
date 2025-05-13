@@ -131,6 +131,8 @@ def get_next_row_from_response(response, data_path=None):
         data = response
         for data_path_token in data_path:
             data = data.get(data_path_token, {})
+    elif isinstance(response, list):
+        data = response
     else:
         raise Exception("get_next_row_from_response: data_path can only be string or list")
     if isinstance(data, list):
