@@ -8,8 +8,12 @@ logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "
 
 
 class AdobeClient():
-    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None):
-        server_url = "https://analytics.adobe.io/api/{}".format(company_id)
+    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False):
+        if mock:
+            logger.warning("Mock mode !")
+            server_url = "http://localhost:3001/api/{}".format(company_id)
+        else:
+            server_url = "https://analytics.adobe.io/api/{}".format(company_id)
         pagination = AdobePagination()
         self.client = APIClient(
             server_url=server_url,
@@ -126,10 +130,14 @@ class AdobeClient():
         return response
 
 
-def generate_access_token(user_account):
+def generate_access_token(user_account, mock=False):
     import requests
     logger.info("Generating access token")
-    url = "https://ims-na1.adobelogin.com/ims/token/v3"
+    if mock:
+        logger.info("Mock mode !")
+        url = "http://localhost:3001/ims/token/v3"
+    else:
+        url = "https://ims-na1.adobelogin.com/ims/token/v3"
     client_id = user_account.get("client_id")
     client_secret = user_account.get("client_secret")
     scope = user_account.get("scope")

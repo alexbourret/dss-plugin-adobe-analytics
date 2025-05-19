@@ -7,6 +7,7 @@ from records_limit import RecordsLimit
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
+mock = False
 
 
 class AdobeAnalyticsConnector(Connector):
@@ -14,10 +15,12 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.9 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.10 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
+        if mock:
+            logger.warning("Mock mode !")
         # logger.info("Running diagnostics")
         # logger.info("External IP={}".format(get_kernel_external_ip()))
         # logger.info("Internal IP={}".format(get_kernel_internal_ip()))
@@ -80,13 +83,14 @@ class AdobeAnalyticsConnector(Connector):
         api_key = user_account.get("api_key")
         if auth_type == "server_to_server":
             logger.info("auth type is server_to_server")
-            bearer_token = generate_access_token(user_account)
+            bearer_token = generate_access_token(user_account, mock=mock)
             api_key = user_account.get("client_id")
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,
             access_token=bearer_token,
-            organization_id=organization_id
+            organization_id=organization_id,
+            mock=mock
         )
         logger.info("Testing pagination on report_suites...")
         try:
