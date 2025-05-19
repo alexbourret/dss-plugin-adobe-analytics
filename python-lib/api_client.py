@@ -24,7 +24,7 @@ class APIClient():
         response = None
         while self.should_try_again(response):
             try:
-                logger.info("geting url={}, params={}".format(full_url, params))
+                logger.info("getting url={}, params={}".format(full_url, params))
                 response = self.session.get(full_url, params=params)
             except Exception as error:
                 error_message = "Error on get: {}".format(error)
