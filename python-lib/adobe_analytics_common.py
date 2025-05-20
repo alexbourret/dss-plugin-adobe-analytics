@@ -19,7 +19,7 @@ def reorder_response(json_response, metrics_names):
     return output_rows
 
 
-def get_connection_from_config(config):
+def get_connection_from_config(config, mock=False):
     auth_type = config.get("auth_type", "user_account")
     logger.info("auth_type={}".format(auth_type))
     user_account = config.get(auth_type, {})
@@ -27,8 +27,8 @@ def get_connection_from_config(config):
     organization_id = user_account.get("organization_id")
     company_id = user_account.get("company_id")
     api_key = user_account.get("api_key")
-    if auth_type == "server_to_server":
+    if auth_type == "server_to_server" and user_account:
         logger.info("auth type is server_to_server")
-        bearer_token = generate_access_token(user_account)
+        bearer_token = generate_access_token(user_account, mock=mock)
         api_key = user_account.get("client_id")
     return organization_id, company_id, api_key, bearer_token
