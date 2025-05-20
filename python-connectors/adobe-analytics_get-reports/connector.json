@@ -7,6 +7,8 @@
     "readable": true,
     "writable": false,
     "supportAppend": false,
+    "kind": "PYTHON",
+    "paramsPythonSetup": "browse.py",
     "params": [
         {
             "name": "version_number",
@@ -56,7 +58,15 @@
         {
             "name": "report_id",
             "label": "Report Suite ID",
-            "type": "STRING"
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["auth_type", "server_to_server", "service_account", "user_account"]
+        },
+        {
+            "name": "report_id_manual",
+            "label": " ",
+            "type": "STRING",
+            "visibilityCondition": "(model.report_id=='_dku_manual_select')"
         },
         {
             "name": "start_date",
@@ -69,66 +79,25 @@
             "type": "DATE"
         },
         {
-            "name": "metrics",
-            "label": "Metrics",
-            "type": "OBJECT_LIST",
-            "subParams": [
-                {
-                    "name": "metric_id",
-                    "label": "Name",
-                    "description": "",
-                    "type": "SELECT",
-                    "selectChoices": [
-                        {
-                            "value": "metrics/visits",
-                            "label": "Visits"
-                        },
-                        {
-                            "value": "metrics/pageviews",
-                            "label": "Page views"
-                        },
-                        {
-                            "value": "metrics/visitors",
-                            "label": "Visitors"
-                        }
-                    ]
-                },
-                {
-                    "name": "metric_sort",
-                    "label": "Sorting",
-                    "description": "",
-                    "type": "SELECT",
-                    "selectChoices": [
-                        {
-                            "value": null,
-                            "label": "-"
-                        },
-                        {
-                            "value": "asc",
-                            "label": "Ascending"
-                        },
-                        {
-                            "value": "desc",
-                            "label": "Descending"
-                        }
-                    ]
-                }
-            ]
+            "name": "metrics_ids",
+            "label": "Metric",
+            "description": "",
+            "type": "MULTISELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
         },
         {
             "name": "dimension",
             "label": "Dimension",
             "type": "SELECT",
-            "selectChoices": [
-                {
-                    "value": "variables/daterangeday",
-                    "label": "Date range day"
-                },
-                {
-                    "value": "variables/page",
-                    "label": "Page"
-                }
-            ]
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
+        },
+        {
+            "name": "dimension_manual",
+            "label": " ",
+            "type": "STRING",
+            "visibilityCondition": "(model.dimension=='_dku_manual_select')"
         }
     ]
 }
