@@ -82,12 +82,69 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 break
-            if row_index > 1000:
+            if row_index > 100:
                 logger.error("loop in list_report_suites")
                 # just exploring, we don't want to block the plugin for that
                 break
         logger.info("list_report_suites looped {} times".format(row_index))
         return report_suites
+
+    def next_report_suites(self):
+        # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
+        # response = self.get("reportsuites/collections/suites")
+        # if mock is True:
+        #     for row in [{'collectionItemType': 'reportsuite', 'id': 'reporta', 'name': 'Report A', 'rsid': 'reporta'}, {'collectionItemType': 'reportsuite', 'id': 'reportb', 'name': 'Report B', 'rsid': 'reportb'}]:
+        #         yield row
+        #     return
+        row_index = 0
+        for row in self.client.get_next_row("reportsuites/collections/suites", data_path="content"):
+            row_index += 1
+            if row is None:
+                logger.error("empty row, stopping here")
+                return
+            if row_index > 100:
+                logger.error("infinite loop in next_report_suites")
+                # just exploring, we don't want to block the plugin for that
+                return
+            yield row
+
+    def next_metric(self, rsid):
+        # if mock is True:
+        #     for row in [{"id": "metrics/campaigninstances", "name": "Campaign Click-throughs"}, {"id": "metrics/cartadditions", "name": "Cart Additions"}]:
+        #         yield row
+        #     return
+        row_index = 0
+        for row in self.client.get_next_row("metrics", params={
+                    "rsid": rsid
+        }):
+            row_index += 1
+            if row is None:
+                logger.error("empty row, stopping here")
+                return
+            if row_index > 100:
+                logger.error("infinite loop in next_metric")
+                # just exploring, we don't want to block the plugin for that
+                return
+            yield row
+
+    def next_dimension(self, rsid):
+        # if mock is True:
+        #     for row in [{"id": "variables/campaign", "name": "Tracking Code"}, {"id": "variables/clickmaplink", "name": "Activity Map Link"}]:
+        #         yield row
+        #     return
+        row_index = 0
+        for row in self.client.get_next_row("dimensions", params={
+                    "rsid": rsid
+        }):
+            row_index += 1
+            if row is None:
+                logger.error("empty row, stopping here")
+                return
+            if row_index > 100:
+                logger.error("infinite loop in next_dimension")
+                # just exploring, we don't want to block the plugin for that
+                return
+            yield row
 
     def list_report_metrics(self, rsid):
         # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/metrics/
@@ -95,8 +152,7 @@ class AdobeClient():
         for row in self.client.get_next_row(
                 "metrics",
                 params={
-                    "rsid": rsid,
-                    "expansion": "allowedForReporting"
+                    "rsid": rsid
                 }
         ):
             metrics.append(row)
