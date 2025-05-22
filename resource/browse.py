@@ -7,11 +7,16 @@ from dss_selector_choices import DSSSelectorChoices, get_value_from_ui
 
 
 logger = SafeLogger("adobe-analytics browser", ["bearer_token", "api_key", "client_secret"])
-mock = False
+mock = True
 
 
 def do(payload, config, plugin_config, inputs):
-    logger.info("do:payload={}, config={}, plugin_config={}, inputs={}".format(logger.filter_secrets(payload), logger.filter_secrets(config), plugin_config, inputs))
+    logger.info("do:payload={}, config={}, plugin_config={}, inputs={}".format(
+            logger.filter_secrets(payload),
+            logger.filter_secrets(config),
+            plugin_config, inputs
+        )
+    )
     choices = DSSSelectorChoices()
 
     try:
@@ -27,7 +32,6 @@ def do(payload, config, plugin_config, inputs):
     parameter_name = payload.get('parameterName')
 
     if not bearer_token:
-        print("ALX:not bearertoken")
         if parameter_name == "report_id":
             return choices.text_message("Set the authentication")
         else:
@@ -46,17 +50,17 @@ def do(payload, config, plugin_config, inputs):
                 label = report_suite.get("name")
                 value = report_suite.get("rsid")
                 if label and value:
-                    choices.append(label, value)
+                    choices.append_alphabetically(label, value)
             choices.append_manual_select()
         elif parameter_name == "metrics_ids":
             report_id = get_value_from_ui(payload, "report_id")
-            print("listing metrics for rsid '{}'".format(report_id))
+            logger.info("listing metrics for rsid '{}'".format(report_id))
             if report_id:
                 for metric in client.next_metric(report_id):
                     label = metric.get("name")
                     value = metric.get("id")
                     if label and value:
-                        choices.append(label, value)
+                        choices.append_alphabetically(label, value)
         elif parameter_name == "dimension":
             report_id = get_value_from_ui(payload, "report_id")
             logger.info("listing dimensions for rsid '{}'".format(report_id))
@@ -65,7 +69,7 @@ def do(payload, config, plugin_config, inputs):
                     label = dimension.get("name")
                     value = dimension.get("id")
                     if label and value:
-                        choices.append(label, value)
+                        choices.append_alphabetically(label, value)
             choices.append_manual_select()
     except Exception as error:
         logger.error("Error while fetching {} : {}".format(parameter_name, error))

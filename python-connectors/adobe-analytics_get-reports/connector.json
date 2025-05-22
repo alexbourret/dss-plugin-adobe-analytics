@@ -11,11 +11,6 @@
     "paramsPythonSetup": "browse.py",
     "params": [
         {
-            "name": "version_number",
-            "label": "Alpha.11",
-            "type": "SEPARATOR"
-        },
-        {
             "name": "auth_type",
             "label": "Type of authentication",
             "type": "SELECT",

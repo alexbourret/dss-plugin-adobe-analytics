@@ -71,31 +71,9 @@ class AdobeClient():
             raise Exception("There was an error {}, {}. Please send the logs to the developpers.".format(error_code, message))
         return response
 
-    def list_report_suites(self):
-        # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
-        # response = self.get("reportsuites/collections/suites")
-        report_suites = []
-        row_index = 0
-        for row in self.client.get_next_row("reportsuites/collections/suites", data_path="content"):
-            report_suites.append(row)
-            row_index += 1
-            if row is None:
-                logger.error("empty row, stopping here")
-                break
-            if row_index > 100:
-                logger.error("loop in list_report_suites")
-                # just exploring, we don't want to block the plugin for that
-                break
-        logger.info("list_report_suites looped {} times".format(row_index))
-        return report_suites
-
     def next_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
         # response = self.get("reportsuites/collections/suites")
-        # if mock is True:
-        #     for row in [{'collectionItemType': 'reportsuite', 'id': 'reporta', 'name': 'Report A', 'rsid': 'reporta'}, {'collectionItemType': 'reportsuite', 'id': 'reportb', 'name': 'Report B', 'rsid': 'reportb'}]:
-        #         yield row
-        #     return
         row_index = 0
         for row in self.client.get_next_row("reportsuites/collections/suites", data_path="content"):
             row_index += 1
@@ -109,10 +87,6 @@ class AdobeClient():
             yield row
 
     def next_metric(self, rsid):
-        # if mock is True:
-        #     for row in [{"id": "metrics/campaigninstances", "name": "Campaign Click-throughs"}, {"id": "metrics/cartadditions", "name": "Cart Additions"}]:
-        #         yield row
-        #     return
         row_index = 0
         for row in self.client.get_next_row("metrics", params={
                     "rsid": rsid
@@ -128,10 +102,6 @@ class AdobeClient():
             yield row
 
     def next_dimension(self, rsid):
-        # if mock is True:
-        #     for row in [{"id": "variables/campaign", "name": "Tracking Code"}, {"id": "variables/clickmaplink", "name": "Activity Map Link"}]:
-        #         yield row
-        #     return
         row_index = 0
         for row in self.client.get_next_row("dimensions", params={
                     "rsid": rsid
@@ -145,45 +115,6 @@ class AdobeClient():
                 # just exploring, we don't want to block the plugin for that
                 return
             yield row
-
-    def list_report_metrics(self, rsid):
-        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/metrics/
-        metrics = []
-        for row in self.client.get_next_row(
-                "metrics",
-                params={
-                    "rsid": rsid
-                }
-        ):
-            metrics.append(row)
-        return metrics
-
-    def list_report_dimensions(self, rsid):
-        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/dimensions/
-        dimensions = []
-        for row in self.client.get_next_row(
-                "dimensions",
-                params={
-                    "rsid": rsid
-                }
-        ):
-            dimensions.append(row)
-        return dimensions
-
-    def list_report_suites_all_pages(self):
-        # No doc on pagination, so trying things...
-        # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
-        response = self.get("reportsuites/collections/suites", params={"page": 1})
-        logger.info("page1:{}".format(response))
-        response = self.get("reportsuites/collections/suites", params={"page": 2})
-        logger.info("page2:{}".format(response))
-        response = self.get("reportsuites/collections/suites", params={"page": 3})
-        logger.info("page3:{}".format(response))
-        response = self.get("reportsuites/collections/suites", params={"page": 4})
-        logger.info("page4:{}".format(response))
-        response = self.get("reportsuites/collections/suites", params={"page": 5})
-        logger.info("page5:{}".format(response))
-        return response
 
 
 def generate_access_token(user_account, mock=False):
