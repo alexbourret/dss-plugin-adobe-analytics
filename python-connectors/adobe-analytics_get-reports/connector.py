@@ -1,10 +1,12 @@
 from dataiku.connector import Connector
 from mock import Mock
-from adobe_analytics_common import reorder_response
-from adobe_client import AdobeClient, generate_access_token
+from adobe_analytics_common import (
+    reorder_response, get_connection_from_config
+)
+from adobe_client import AdobeClient
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
-
+from dss_selector_choices import get_value_from_ui
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
 mock = False
@@ -15,7 +17,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.10 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.11 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -36,13 +38,14 @@ class AdobeAnalyticsConnector(Connector):
         #     'auth_type': 'user_account',
         #     'report_id': 'azer'
         # }
-        self.report_id = config.get("report_id")
+        self.report_id = get_value_from_ui(config, "report_id")
+        logger.info("selected rsid: {}".format(self.report_id))
         if not self.report_id:
             raise Exception("A valid Report Suite ID needs to be set")
         self.start_date = dss_date_to_adobe(config.get("start_date"))
         self.end_date = dss_date_to_adobe(config.get("end_date"))
-        metrics = config.get("metrics", [])
-        logger.info("ALX:metrics={}".format(metrics))
+        # metrics = config.get("metrics", [])
+        # logger.info("ALX:metrics={}".format(metrics))
         # [{
         #     '$$hashKey': 'object:583',
         #     'metric_name': 'metrics/visits'
@@ -56,24 +59,27 @@ class AdobeAnalyticsConnector(Connector):
         #     'metric_sort': 'desc'
         # }]
         column_index = 0
+        metrics_ids = config.get("metrics_ids", [])
         self.metrics = []
         self.metrics_names = []
-        for metric in metrics:
-            metric_id = metric.get("metric_id")
-            metric_sort = metric.get("metric_sort")
+        for metric_name in metrics_ids:
+            print("ALX:metric={}".format(metric_name))
+            # metric_id = get_value_from_ui(metric, "value")
+            # metric_sort = metric.get("metric_sort")
             final_metric = {
                 "columnId": "{}".format(column_index),
-                "id": metric_id
+                "id": metric_name
             }
-            if metric_sort:
-                final_metric["sort"] = metric_sort
+            # if metric_sort:
+            #     final_metric["sort"] = metric_sort
             self.metrics.append(final_metric)
-            self.metrics_names.append(metric_id)
+            self.metrics_names.append(metric_name)
             column_index += 1
-        logger.info("ALX:self.metrics={}".format(self.metrics))
-        logger.info("ALX:self.metrics_names={}".format(self.metrics_names))
+        logger.info("metrics={}".format(self.metrics))
+        logger.info("metrics_names={}".format(self.metrics_names))
 
-        self.dimension = self.config.get("dimension")
+        # self.dimension = self.config.get("dimension")
+        self.dimension = get_value_from_ui(self.config, "dimension")
         auth_type = config.get("auth_type", "user_account")
         logger.info("auth_type={}".format(auth_type))
         user_account = config.get(auth_type, {})
@@ -81,10 +87,26 @@ class AdobeAnalyticsConnector(Connector):
         organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
-        if auth_type == "server_to_server":
-            logger.info("auth type is server_to_server")
-            bearer_token = generate_access_token(user_account, mock=mock)
-            api_key = user_account.get("client_id")
+        # if auth_type == "server_to_server":
+        #     logger.info("auth type is server_to_server")
+        #     bearer_token = generate_access_token(user_account, mock=mock)
+        #     api_key = user_account.get("client_id")
+        """
+        def get_connection_from_config(config):
+            auth_type = config.get("auth_type", "user_account")
+            logger.info("auth_type={}".format(auth_type))
+            user_account = config.get(auth_type, {})
+            bearer_token = user_account.get("bearer_token")
+            organization_id = user_account.get("organization_id")
+            company_id = user_account.get("company_id")
+            api_key = user_account.get("api_key")
+            if auth_type == "server_to_server":
+                logger.info("auth type is server_to_server")
+                bearer_token = generate_access_token(user_account)
+                api_key = user_account.get("client_id")
+            return organization_id, company_id, api_key, bearer_token
+        """
+        organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,

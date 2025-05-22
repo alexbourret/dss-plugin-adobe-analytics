@@ -122,8 +122,8 @@ class APIClient():
 
 
 def get_next_row_from_response(response, data_path=None):
-    if not data_path:
-        return response
+    # if not data_path:
+    #     return response
     data = []
     if isinstance(data_path, str):
         data = response.get(data_path)
@@ -134,7 +134,8 @@ def get_next_row_from_response(response, data_path=None):
     elif isinstance(response, list):
         data = response
     else:
-        raise Exception("get_next_row_from_response: data_path can only be string or list")
+        logger.error("get_next_row_from_response response={}".format(response))
+        raise Exception("get_next_row_from_response: data_path not matching response type")
     if isinstance(data, list):
         for row in data:
             yield row

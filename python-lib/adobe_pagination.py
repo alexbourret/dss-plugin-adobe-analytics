@@ -14,6 +14,7 @@ class AdobePagination():
     def has_next_page(self, response, items_retrieved):
         if response is None:
             logger.info("has_next_page initialisation")
+            self.page_offset = None
             return True
         try:
             logger.info("decoding json")
