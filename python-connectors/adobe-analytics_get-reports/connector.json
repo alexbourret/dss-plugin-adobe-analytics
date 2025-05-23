@@ -12,7 +12,7 @@
     "params": [
         {
             "name": "version_number",
-            "label": "Alpha.11",
+            "label": "Alpha.12",
             "type": "SEPARATOR"
         },
         {
