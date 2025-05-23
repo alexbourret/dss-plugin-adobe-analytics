@@ -43,7 +43,12 @@ class AdobeClient():
         response = self.client.patch(endpoint, url=url, raw=raw, params=params, data=data, json=json, headers=headers)
         return response
 
-    def get_reports(self, report_id=None, start_date=None, end_date=None, metrics=None, dimension=None):
+    def get_reports(self, report_id=None, start_date=None, end_date=None,
+                    metrics=None, dimension=None, segment=None):
+        # doc: https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/reports/
+        # segments are added in the globalFilters : 
+        #       https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/reports/segments/
+
         logger.info("get_report:report_id={}, start_date={}, end_date={}, metrics={}, dimension={}".format(
                 report_id, start_date, end_date, metrics, dimension
             )
@@ -63,6 +68,11 @@ class AdobeClient():
             "settings": {
             }
         }
+        if segment:
+            query["globalFilters"].append({
+                "type": "segment",
+                "segmentId": segment
+            })
         logger.info("query={}".format(query))
         response = self.post("reports", json=query)
         if "error_code" in response:
@@ -82,7 +92,7 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 break
-            if row_index > 100:
+            if row_index > 1000:
                 logger.error("loop in list_report_suites")
                 # just exploring, we don't want to block the plugin for that
                 break
@@ -102,7 +112,7 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 return
-            if row_index > 100:
+            if row_index > 1000:
                 logger.error("infinite loop in next_report_suites")
                 # just exploring, we don't want to block the plugin for that
                 return
@@ -121,7 +131,7 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 return
-            if row_index > 100:
+            if row_index > 1000:
                 logger.error("infinite loop in next_metric")
                 # just exploring, we don't want to block the plugin for that
                 return
@@ -140,8 +150,23 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 return
-            if row_index > 100:
+            if row_index > 1000:
                 logger.error("infinite loop in next_dimension")
+                # just exploring, we don't want to block the plugin for that
+                return
+            yield row
+
+    def next_segment(self, rsid):
+        row_index = 0
+        for row in self.client.get_next_row("segments", params={
+                    "rsid": rsid
+        }):
+            row_index += 1
+            if row is None:
+                logger.error("empty row, stopping here")
+                return
+            if row_index > 1000:
+                logger.error("infinite loop in next_segment")
                 # just exploring, we don't want to block the plugin for that
                 return
             yield row
@@ -170,20 +195,17 @@ class AdobeClient():
             dimensions.append(row)
         return dimensions
 
-    def list_report_suites_all_pages(self):
-        # No doc on pagination, so trying things...
-        # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
-        response = self.get("reportsuites/collections/suites", params={"page": 1})
-        logger.info("page1:{}".format(response))
-        response = self.get("reportsuites/collections/suites", params={"page": 2})
-        logger.info("page2:{}".format(response))
-        response = self.get("reportsuites/collections/suites", params={"page": 3})
-        logger.info("page3:{}".format(response))
-        response = self.get("reportsuites/collections/suites", params={"page": 4})
-        logger.info("page4:{}".format(response))
-        response = self.get("reportsuites/collections/suites", params={"page": 5})
-        logger.info("page5:{}".format(response))
-        return response
+    def list_report_segments(self, rsid):
+        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/segments/
+        segments = []
+        for row in self.client.get_next_row(
+                "segments",
+                params={
+                    "rsid": rsid
+                }
+        ):
+            segments.append(row)
+        return segments
 
 
 def generate_access_token(user_account, mock=False):
