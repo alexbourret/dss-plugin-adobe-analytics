@@ -46,17 +46,19 @@ def do(payload, config, plugin_config, inputs):
                 label = report_suite.get("name")
                 value = report_suite.get("rsid")
                 if label and value:
-                    choices.append(label, value)
+                    choices.append_alphabetically(label, value)
             choices.append_manual_select()
         elif parameter_name == "metrics_ids":
             report_id = get_value_from_ui(payload, "report_id")
             print("listing metrics for rsid '{}'".format(report_id))
             if report_id:
                 for metric in client.next_metric(report_id):
-                    label = metric.get("name")
+                    # Metric's labels are not unique, but multiselect cannot stand that
+                    # so the metric ID is added to the label
+                    label = "{} - {}".format(metric.get("name"), metric.get("id"))
                     value = metric.get("id")
                     if label and value:
-                        choices.append(label, value)
+                        choices.append_alphabetically(label, value)
         elif parameter_name == "dimension":
             report_id = get_value_from_ui(payload, "report_id")
             logger.info("listing dimensions for rsid '{}'".format(report_id))
@@ -65,7 +67,16 @@ def do(payload, config, plugin_config, inputs):
                     label = dimension.get("name")
                     value = dimension.get("id")
                     if label and value:
-                        choices.append(label, value)
+                        choices.append_alphabetically(label, value)
+            choices.append_manual_select()
+        elif parameter_name == "segment":
+            report_id = get_value_from_ui(payload, "report_id")
+            if report_id:
+                for segment in client.next_segment(report_id):
+                    label = segment.get("name")
+                    value = segment.get("id")
+                    if label and value:
+                        choices.append_alphabetically(label, value)
             choices.append_manual_select()
     except Exception as error:
         logger.error("Error while fetching {} : {}".format(parameter_name, error))

@@ -10,6 +10,20 @@ class DSSSelectorChoices(object):
             }
         )
 
+    def append_alphabetically(self, new_label, new_value):
+        index = 0
+        new_choice = {
+            "label": new_label,
+            "value": new_value
+        }
+        for choice in self.choices:
+            choice_label = choice.get("label")
+            if choice_label.lower() < new_label.lower():
+                index += 1
+            else:
+                break
+        self.choices.insert(index, new_choice)
+
     def append_manual_select(self):
         self.choices.append(
             {
