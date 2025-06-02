@@ -158,7 +158,7 @@ class AdobeClient():
 
     def next_segment(self, rsid):
         row_index = 0
-        for row in self.client.get_next_row("segments", params={
+        for row in self.client.get_next_row("segments", data_path="content", params={
                     "rsid": rsid
         }):
             row_index += 1
