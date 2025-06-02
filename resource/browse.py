@@ -64,7 +64,15 @@ def do(payload, config, plugin_config, inputs):
             logger.info("listing dimensions for rsid '{}'".format(report_id))
             if report_id:
                 for dimension in client.next_dimension(report_id):
-                    label = dimension.get("name")
+                    name = dimension.get("name")
+                    extra_title_info = dimension.get("extraTitleInfo")
+                    description = dimension.get("description")
+                    if extra_title_info:
+                        label = "{} - {}".format(name, extra_title_info)
+                    elif description:
+                        label = "{} ({})".format(name, description)
+                    else:
+                        label = "{}".format(name)
                     value = dimension.get("id")
                     if label and value:
                         choices.append_alphabetically(label, value)
