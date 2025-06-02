@@ -12,7 +12,7 @@
     "params": [
         {
             "name": "version_number",
-            "label": "Alpha.11",
+            "label": "Alpha.12",
             "type": "SEPARATOR"
         },
         {
@@ -65,6 +65,7 @@
         {
             "name": "report_id_manual",
             "label": " ",
+            "description": "(id)",
             "type": "STRING",
             "visibilityCondition": "(model.report_id=='_dku_manual_select')"
         },
@@ -96,8 +97,23 @@
         {
             "name": "dimension_manual",
             "label": " ",
+            "description": "(id)",
             "type": "STRING",
             "visibilityCondition": "(model.dimension=='_dku_manual_select')"
+        },
+        {
+            "name": "segment",
+            "label": "Segment",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
+        },
+        {
+            "name": "segment_manual",
+            "label": " ",
+            "description": "(id)",
+            "type": "STRING",
+            "visibilityCondition": "(model.segment=='_dku_manual_select')"
         }
     ]
 }

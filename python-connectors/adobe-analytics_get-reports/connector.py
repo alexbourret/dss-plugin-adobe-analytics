@@ -17,7 +17,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.11 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.12 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -80,6 +80,7 @@ class AdobeAnalyticsConnector(Connector):
 
         # self.dimension = self.config.get("dimension")
         self.dimension = get_value_from_ui(self.config, "dimension")
+        self.segment = get_value_from_ui(self.config, "segment")
         auth_type = config.get("auth_type", "user_account")
         logger.info("auth_type={}".format(auth_type))
         user_account = config.get(auth_type, {})
@@ -114,6 +115,7 @@ class AdobeAnalyticsConnector(Connector):
             organization_id=organization_id,
             mock=mock
         )
+
         logger.info("Testing pagination on report_suites...")
         try:
             report_suites = self.client.list_report_suites()
@@ -134,6 +136,13 @@ class AdobeAnalyticsConnector(Connector):
             logger.info("report_metrics={}".format(report_dimensions))
         except Exception as error:
             logger.error("Error {} while listing report dimensions".format(error))
+
+        logger.info("Testing pagination on segments for {}...".format(self.report_id))
+        try:
+            report_segments = self.client.list_report_segments(self.report_id)
+            logger.info("report_segments={}".format(report_segments))
+        except Exception as error:
+            logger.error("Error {} while listing report segments".format(error))
 
     def get_read_schema(self):
         """
@@ -169,7 +178,8 @@ class AdobeAnalyticsConnector(Connector):
             start_date=self.start_date,
             end_date=self.end_date,
             metrics=self.metrics,
-            dimension=self.dimension
+            dimension=self.dimension,
+            segment=self.segment
         )
         logger.info("json_response={}".format(json_response))
         rows = reorder_response(json_response, self.metrics_names)
