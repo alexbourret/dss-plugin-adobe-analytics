@@ -1,7 +1,7 @@
 from dataiku.connector import Connector
 from mock import Mock
 from adobe_analytics_common import (
-    reorder_response, get_connection_from_config
+    get_connection_from_config, reorder_rows
 )
 from adobe_client import AdobeClient
 from safe_logger import SafeLogger
@@ -63,7 +63,6 @@ class AdobeAnalyticsConnector(Connector):
         self.metrics = []
         self.metrics_names = []
         for metric_name in metrics_ids:
-            print("ALX:metric={}".format(metric_name))
             # metric_id = get_value_from_ui(metric, "value")
             # metric_sort = metric.get("metric_sort")
             final_metric = {
@@ -173,18 +172,26 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("generate_rows, records_limit={}".format(records_limit))
         limit = RecordsLimit(records_limit)
         logger.info("Before get_reports")
-        json_response = self.client.get_reports(
-            report_id=self.report_id,
-            start_date=self.start_date,
-            end_date=self.end_date,
-            metrics=self.metrics,
-            dimension=self.dimension,
-            segment=self.segment
-        )
-        logger.info("json_response={}".format(json_response))
-        rows = reorder_response(json_response, self.metrics_names)
-        # rows = reorder_response(Mock.JSON_RESPONSE, ['metrics/pageviews','metrics/visits','metrics/visitors'])
-        for row in rows:
+        # json_response = self.client.get_reports(
+        #     report_id=self.report_id,
+        #     start_date=self.start_date,
+        #     end_date=self.end_date,
+        #     metrics=self.metrics,
+        #     dimension=self.dimension,
+        #     segment=self.segment
+        # )
+        # logger.info("json_response={}".format(json_response))
+        # rows = reorder_response(json_response, self.metrics_names)
+        # # rows = reorder_response(Mock.JSON_RESPONSE, ['metrics/pageviews','metrics/visits','metrics/visitors'])
+        # for row in rows:
+        #     yield row
+        #     if limit.is_reached():
+        #         return
+        for row in reorder_rows(self.client.next_report_row(
+                report_id=self.report_id, start_date=self.start_date, end_date=self.end_date,
+                metrics=self.metrics, dimension=self.dimension, segment=self.segment
+            ), self.metrics_names
+        ):
             yield row
             if limit.is_reached():
                 return

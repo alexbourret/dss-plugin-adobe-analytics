@@ -81,6 +81,40 @@ class AdobeClient():
             raise Exception("There was an error {}, {}. Please send the logs to the developpers.".format(error_code, message))
         return response
 
+    def next_report_row(self, report_id=None, start_date=None, end_date=None,
+                        metrics=None, dimension=None, segment=None):
+        # doc: https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/reports/
+        # segments are added in the globalFilters :
+        #       https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/reports/segments/
+
+        logger.info("next_report_row:report_id={}, start_date={}, end_date={}, metrics={}, dimension={}".format(
+                report_id, start_date, end_date, metrics, dimension
+            )
+        )
+        query = {
+            "rsid": report_id,
+            "globalFilters": [
+                {
+                    "type": "dateRange",
+                    "dateRange": "{}/{}".format(start_date, end_date)
+                }
+            ],
+            "metricContainer": {
+                "metrics": metrics
+            },
+            "dimension": dimension,
+            "settings": {
+            }
+        }
+        if segment:
+            query["globalFilters"].append({
+                "type": "segment",
+                "segmentId": segment
+            })
+        logger.info("query={}".format(query))
+        for row in self.client.get_next_row("reports", data_path="rows"):
+            yield row
+
     def list_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
         # response = self.get("reportsuites/collections/suites")
@@ -202,7 +236,8 @@ class AdobeClient():
                 "segments",
                 params={
                     "rsid": rsid
-                }
+                },
+                data_path="content"
         ):
             segments.append(row)
         return segments
