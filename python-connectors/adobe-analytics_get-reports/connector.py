@@ -7,6 +7,7 @@ from adobe_client import AdobeClient
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
 from dss_selector_choices import get_value_from_ui
+from diagnostics import test_urls
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
 mock = False
@@ -38,6 +39,7 @@ class AdobeAnalyticsConnector(Connector):
         #     'auth_type': 'user_account',
         #     'report_id': 'azer'
         # }
+        test_urls()
         self.report_id = get_value_from_ui(config, "report_id")
         logger.info("selected rsid: {}".format(self.report_id))
         if not self.report_id:
