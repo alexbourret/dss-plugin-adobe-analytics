@@ -22,7 +22,7 @@ class AdobeAnalyticsConnector(Connector):
             )
         )
         if mock:
-            logger.warning("Mock mode !")
+            logger.warning("Mock mode ! Get mock server started")
         # logger.info("Running diagnostics")
         # logger.info("External IP={}".format(get_kernel_external_ip()))
         # logger.info("Internal IP={}".format(get_kernel_internal_ip()))
@@ -87,6 +87,8 @@ class AdobeAnalyticsConnector(Connector):
         organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
+        self.pagination_type = config.get("pagination_type", "params")
+        logger.info("Pagination type set to {}.".format(self.pagination_type))
         # if auth_type == "server_to_server":
         #     logger.info("auth type is server_to_server")
         #     bearer_token = generate_access_token(user_account, mock=mock)
@@ -112,7 +114,8 @@ class AdobeAnalyticsConnector(Connector):
             api_key=api_key,
             access_token=bearer_token,
             organization_id=organization_id,
-            mock=mock
+            mock=mock,
+            pagination_type=self.pagination_type
         )
 
         logger.info("Testing pagination on report_suites...")

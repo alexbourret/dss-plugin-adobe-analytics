@@ -70,6 +70,43 @@
             "visibilityCondition": "(model.report_id=='_dku_manual_select')"
         },
         {
+            "name": "endpoint",
+            "label": " ",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "reports",
+                    "label": "V2.0 Reporting"
+                },
+                {
+                    "value": "reports/realtime",
+                    "label": "Realtime report"
+                },
+                {
+                    "value": "v1.4",
+                    "label": "V1.4 Reporting"
+                }
+            ],
+            "defaultValue": "reports",
+            "visibilityCondition": "false"
+        },
+        {
+            "name": "pagination_type",
+            "label": "Pagination test",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "params",
+                    "label": "Test 1"
+                },
+                {
+                    "value": "json",
+                    "label": "Test 2"
+                }
+            ],
+            "defaultValue": "params"
+        },
+        {
             "name": "start_date",
             "label": "Start date",
             "type": "DATE"
@@ -78,6 +115,22 @@
             "name": "end_date",
             "label": "End date",
             "type": "DATE"
+        },
+        {
+            "name": "time_granularity",
+            "label": "Time granularity",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "day",
+                    "label": "Day"
+                },
+                {
+                    "value": "month",
+                    "label": "Month"
+                }
+            ],
+            "visibilityCondition": "false && model.endpoint=='reports/realtime'"
         },
         {
             "name": "metrics_ids",
