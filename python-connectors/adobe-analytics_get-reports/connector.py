@@ -1,12 +1,13 @@
 from dataiku.connector import Connector
 from mock import Mock
 from adobe_analytics_common import (
-    reorder_response, get_connection_from_config
+    get_connection_from_config, reorder_rows
 )
 from adobe_client import AdobeClient
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
 from dss_selector_choices import get_value_from_ui
+from diagnostics import test_urls
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
 mock = False
@@ -22,7 +23,7 @@ class AdobeAnalyticsConnector(Connector):
             )
         )
         if mock:
-            logger.warning("Mock mode !")
+            logger.warning("Mock mode ! Get mock server started")
         # logger.info("Running diagnostics")
         # logger.info("External IP={}".format(get_kernel_external_ip()))
         # logger.info("Internal IP={}".format(get_kernel_internal_ip()))
@@ -38,6 +39,7 @@ class AdobeAnalyticsConnector(Connector):
         #     'auth_type': 'user_account',
         #     'report_id': 'azer'
         # }
+        test_urls()
         self.report_id = get_value_from_ui(config, "report_id")
         logger.info("selected rsid: {}".format(self.report_id))
         if not self.report_id:
@@ -63,7 +65,6 @@ class AdobeAnalyticsConnector(Connector):
         self.metrics = []
         self.metrics_names = []
         for metric_name in metrics_ids:
-            print("ALX:metric={}".format(metric_name))
             # metric_id = get_value_from_ui(metric, "value")
             # metric_sort = metric.get("metric_sort")
             final_metric = {
@@ -88,6 +89,8 @@ class AdobeAnalyticsConnector(Connector):
         organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
+        self.pagination_type = config.get("pagination_type", "params")
+        logger.info("Pagination type set to {}.".format(self.pagination_type))
         # if auth_type == "server_to_server":
         #     logger.info("auth type is server_to_server")
         #     bearer_token = generate_access_token(user_account, mock=mock)
@@ -113,7 +116,8 @@ class AdobeAnalyticsConnector(Connector):
             api_key=api_key,
             access_token=bearer_token,
             organization_id=organization_id,
-            mock=mock
+            mock=mock,
+            pagination_type=self.pagination_type
         )
 
         logger.info("Testing pagination on report_suites...")
@@ -173,18 +177,26 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("generate_rows, records_limit={}".format(records_limit))
         limit = RecordsLimit(records_limit)
         logger.info("Before get_reports")
-        json_response = self.client.get_reports(
-            report_id=self.report_id,
-            start_date=self.start_date,
-            end_date=self.end_date,
-            metrics=self.metrics,
-            dimension=self.dimension,
-            segment=self.segment
-        )
-        logger.info("json_response={}".format(json_response))
-        rows = reorder_response(json_response, self.metrics_names)
-        # rows = reorder_response(Mock.JSON_RESPONSE, ['metrics/pageviews','metrics/visits','metrics/visitors'])
-        for row in rows:
+        # json_response = self.client.get_reports(
+        #     report_id=self.report_id,
+        #     start_date=self.start_date,
+        #     end_date=self.end_date,
+        #     metrics=self.metrics,
+        #     dimension=self.dimension,
+        #     segment=self.segment
+        # )
+        # logger.info("json_response={}".format(json_response))
+        # rows = reorder_response(json_response, self.metrics_names)
+        # # rows = reorder_response(Mock.JSON_RESPONSE, ['metrics/pageviews','metrics/visits','metrics/visitors'])
+        # for row in rows:
+        #     yield row
+        #     if limit.is_reached():
+        #         return
+        for row in reorder_rows(self.client.next_report_row(
+                report_id=self.report_id, start_date=self.start_date, end_date=self.end_date,
+                metrics=self.metrics, dimension=self.dimension, segment=self.segment
+            ), self.metrics_names
+        ):
             yield row
             if limit.is_reached():
                 return
