@@ -10,7 +10,7 @@ logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "
 class AdobeClient():
     def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False):
         if mock:
-            logger.warning("Mock mode !")
+            logger.warning("Mock mode ! Get mock server started")
             server_url = "http://localhost:3001/api/{}".format(company_id)
         else:
             server_url = "https://analytics.adobe.io/api/{}".format(company_id)
@@ -112,7 +112,7 @@ class AdobeClient():
                 "segmentId": segment
             })
         logger.info("query={}".format(query))
-        for row in self.client.get_next_row("reports", data_path="rows"):
+        for row in self.client.get_next_row("reports", data_path="rows", method="POST", json=query):
             yield row
 
     def list_report_suites(self):
@@ -247,7 +247,7 @@ def generate_access_token(user_account, mock=False):
     import requests
     logger.info("Generating access token")
     if mock:
-        logger.info("Mock mode !")
+        logger.info("Mock mode ! Get mock server started")
         url = "http://localhost:3001/ims/token/v3"
     else:
         url = "https://ims-na1.adobelogin.com/ims/token/v3"
