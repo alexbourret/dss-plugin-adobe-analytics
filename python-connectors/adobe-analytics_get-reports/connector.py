@@ -89,8 +89,6 @@ class AdobeAnalyticsConnector(Connector):
         organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
-        self.pagination_type = config.get("pagination_type", "params")
-        logger.info("Pagination type set to {}.".format(self.pagination_type))
         # if auth_type == "server_to_server":
         #     logger.info("auth type is server_to_server")
         #     bearer_token = generate_access_token(user_account, mock=mock)
@@ -116,8 +114,7 @@ class AdobeAnalyticsConnector(Connector):
             api_key=api_key,
             access_token=bearer_token,
             organization_id=organization_id,
-            mock=mock,
-            pagination_type=self.pagination_type
+            mock=mock
         )
 
         logger.info("Testing pagination on report_suites...")
