@@ -91,22 +91,6 @@
             "visibilityCondition": "false"
         },
         {
-            "name": "pagination_type",
-            "label": "Pagination test",
-            "type": "SELECT",
-            "selectChoices": [
-                {
-                    "value": "params",
-                    "label": "Test 1"
-                },
-                {
-                    "value": "json",
-                    "label": "Test 2"
-                }
-            ],
-            "defaultValue": "params"
-        },
-        {
             "name": "start_date",
             "label": "Start date",
             "type": "DATE"
