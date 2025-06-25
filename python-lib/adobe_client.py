@@ -8,9 +8,9 @@ logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "
 
 
 class AdobeClient():
-    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False):
+    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False, pagination_type=None):
         if mock:
-            logger.warning("Mock mode !")
+            logger.warning("Mock mode ! Get mock server started")
             server_url = "http://localhost:3001/api/{}".format(company_id)
         else:
             server_url = "https://analytics.adobe.io/api/{}".format(company_id)
@@ -19,7 +19,8 @@ class AdobeClient():
             server_url=server_url,
             auth=AdobeAuth(api_key=api_key, bearer_token=access_token, organization_id=organization_id),
             pagination=pagination,
-            max_number_of_retries=1
+            max_number_of_retries=1,
+            pagination_type=pagination_type
         )
 
     def get_next_item(self, endpoint):
@@ -80,6 +81,40 @@ class AdobeClient():
             message = response.get("message")
             raise Exception("There was an error {}, {}. Please send the logs to the developpers.".format(error_code, message))
         return response
+
+    def next_report_row(self, report_id=None, start_date=None, end_date=None,
+                        metrics=None, dimension=None, segment=None):
+        # doc: https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/reports/
+        # segments are added in the globalFilters :
+        #       https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/reports/segments/
+
+        logger.info("next_report_row:report_id={}, start_date={}, end_date={}, metrics={}, dimension={}".format(
+                report_id, start_date, end_date, metrics, dimension
+            )
+        )
+        query = {
+            "rsid": report_id,
+            "globalFilters": [
+                {
+                    "type": "dateRange",
+                    "dateRange": "{}/{}".format(start_date, end_date)
+                }
+            ],
+            "metricContainer": {
+                "metrics": metrics
+            },
+            "dimension": dimension,
+            "settings": {
+            }
+        }
+        if segment:
+            query["globalFilters"].append({
+                "type": "segment",
+                "segmentId": segment
+            })
+        logger.info("query={}".format(query))
+        for row in self.client.get_next_row("reports", data_path="rows", method="POST", json=query):
+            yield row
 
     def list_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
@@ -202,7 +237,8 @@ class AdobeClient():
                 "segments",
                 params={
                     "rsid": rsid
-                }
+                },
+                data_path="content"
         ):
             segments.append(row)
         return segments
@@ -212,7 +248,7 @@ def generate_access_token(user_account, mock=False):
     import requests
     logger.info("Generating access token")
     if mock:
-        logger.info("Mock mode !")
+        logger.info("Mock mode ! Get mock server started")
         url = "http://localhost:3001/ims/token/v3"
     else:
         url = "https://ims-na1.adobelogin.com/ims/token/v3"

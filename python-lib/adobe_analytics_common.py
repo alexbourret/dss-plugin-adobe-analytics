@@ -19,6 +19,22 @@ def reorder_response(json_response, metrics_names):
     return output_rows
 
 
+def reorder_rows(row_getter, metrics_names):
+    output_rows = []
+    for item in row_getter:
+        if not item:
+            continue
+        output_row = {}
+        output_row['item_id'] = item.get("itemId")
+        output_row['item_name'] = item.get("value")
+        item_data = item.get("data", [])
+        for metric_name, metric_value in zip(metrics_names, item_data):
+            output_row[metric_name] = metric_value
+        output_rows.append(output_row)
+    for output_row in output_rows:
+        yield output_row
+
+
 def get_connection_from_config(config, mock=False):
     auth_type = config.get("auth_type", "user_account")
     logger.info("auth_type={}".format(auth_type))
