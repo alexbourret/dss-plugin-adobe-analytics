@@ -48,3 +48,10 @@ def get_connection_from_config(config, mock=False):
         bearer_token = generate_access_token(user_account, mock=mock)
         api_key = user_account.get("client_id")
     return organization_id, company_id, api_key, bearer_token
+
+
+def dss_date_to_adobe(dss_date):
+    if not dss_date or not isinstance(dss_date, str):
+        return None
+    if dss_date.endswith("Z"):
+        return dss_date[:-1]
