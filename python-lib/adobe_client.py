@@ -133,6 +133,12 @@ class AdobeClient():
         logger.info("list_report_suites looped {} times".format(row_index))
         return report_suites
 
+    def get_report_suite_details(self, report_suite_id):
+        # https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites/{REPORT_SUITE_ID}
+        endpoint = "reportsuites/collections/suites/{}".format(report_suite_id)
+        json_response = self.get(endpoint)
+        return json_response
+
     def next_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
         # response = self.get("reportsuites/collections/suites")

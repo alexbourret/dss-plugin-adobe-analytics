@@ -102,6 +102,14 @@ class AdobeAnalyticsConnector(Connector):
         except Exception as error:
             logger.error("Error {} while listing report segments".format(error))
 
+        logger.info("Testing getting info on report suite {}".format(self.report_id))
+        # Goal: find the report's timezone to translate the UI date range
+        try:
+            report_info = self.client.get_report_suite_details(self.report_id)
+            logger.info("Details about {}: {}".format(self.report_id, report_info))
+        except Exception as error:
+            logger.error("Error {} while getting details".format(error))
+
     def get_read_schema(self):
         """
         Returns the schema that this connector generates when returning rows.
