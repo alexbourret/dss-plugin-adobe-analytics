@@ -12,7 +12,7 @@
     "params": [
         {
             "name": "version_number",
-            "label": "Alpha.14",
+            "label": "Alpha.15",
             "type": "SEPARATOR"
         },
         {
@@ -99,7 +99,8 @@
         },
         {
             "name": "start_date",
-            "label": "Start date",
+            "label": " ",
+            "description": "From",
             "type": "DATE",
             "visibilityCondition": "!model.is_date_entered_manually"
         },
@@ -112,7 +113,8 @@
         },
         {
             "name": "end_date",
-            "label": "End date",
+            "label": " ",
+            "description": "To",
             "type": "DATE",
             "visibilityCondition": "!model.is_date_entered_manually"
         },
