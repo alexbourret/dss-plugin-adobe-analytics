@@ -11,7 +11,11 @@ mock = False
 
 
 def do(payload, config, plugin_config, inputs):
-    logger.info("do:payload={}, config={}, plugin_config={}, inputs={}".format(logger.filter_secrets(payload), logger.filter_secrets(config), plugin_config, inputs))
+    logger.info("do:payload={}, config={}, plugin_config={}, inputs={}".format(
+            logger.filter_secrets(payload), logger.filter_secrets(config),
+            plugin_config, inputs
+        )
+    )
     choices = DSSSelectorChoices()
 
     try:
@@ -27,7 +31,7 @@ def do(payload, config, plugin_config, inputs):
     parameter_name = payload.get('parameterName')
 
     if not bearer_token:
-        print("ALX:not bearertoken")
+        logger.info("not bearertoken")
         if parameter_name == "report_id":
             return choices.text_message("Set the authentication")
         else:
