@@ -8,7 +8,7 @@ logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "
 
 
 class AdobeClient():
-    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False, pagination_type=None):
+    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False):
         if mock:
             logger.warning("Mock mode ! Get mock server started")
             server_url = "http://localhost:3001/api/{}".format(company_id)
@@ -19,8 +19,7 @@ class AdobeClient():
             server_url=server_url,
             auth=AdobeAuth(api_key=api_key, bearer_token=access_token, organization_id=organization_id),
             pagination=pagination,
-            max_number_of_retries=1,
-            pagination_type=pagination_type
+            max_number_of_retries=1
         )
 
     def get_next_item(self, endpoint):
@@ -133,6 +132,12 @@ class AdobeClient():
                 break
         logger.info("list_report_suites looped {} times".format(row_index))
         return report_suites
+
+    def get_report_suite_details(self, report_suite_id):
+        # https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites/{REPORT_SUITE_ID}
+        endpoint = "reportsuites/collections/suites/{}".format(report_suite_id)
+        json_response = self.get(endpoint)
+        return json_response
 
     def next_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
