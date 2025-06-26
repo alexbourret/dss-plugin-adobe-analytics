@@ -44,8 +44,14 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("selected rsid: {}".format(self.report_id))
         if not self.report_id:
             raise Exception("A valid Report Suite ID needs to be set")
-        self.start_date = dss_date_to_adobe(config.get("start_date"))
-        self.end_date = dss_date_to_adobe(config.get("end_date"))
+        is_date_entered_manually = config.get("is_date_entered_manually", False)
+        if not is_date_entered_manually:
+            self.start_date = dss_date_to_adobe(config.get("start_date"))
+            self.end_date = dss_date_to_adobe(config.get("end_date"))
+        else:
+            self.start_date = config.get("manual_start_date")
+            self.end_date = config.get("manual_end_date")
+        logger.info("selected date range: from {} to {}".format(self.start_date, self.end_date))
         # metrics = config.get("metrics", [])
         # logger.info("ALX:metrics={}".format(metrics))
         # [{

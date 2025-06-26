@@ -91,14 +91,44 @@
             "visibilityCondition": "false"
         },
         {
+            "name": "is_date_entered_manually",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Enter date manually",
+            "defaultValue": false
+        },
+        {
             "name": "start_date",
             "label": "Start date",
-            "type": "DATE"
+            "type": "DATE",
+            "visibilityCondition": "!model.is_date_entered_manually"
+        },
+        {
+            "name": "manual_start_date",
+            "type": "STRING",
+            "label": " ",
+            "description": "From",
+            "visibilityCondition": "model.is_date_entered_manually"
         },
         {
             "name": "end_date",
             "label": "End date",
-            "type": "DATE"
+            "type": "DATE",
+            "visibilityCondition": "!model.is_date_entered_manually"
+        },
+        {
+            "name": "manual_end_date",
+            "type": "STRING",
+            "label": " ",
+            "description": "To",
+            "visibilityCondition": "model.is_date_entered_manually"
+        },
+        {
+            "name": "manual-time-doc-separator",
+            "type": "SEPARATOR",
+            "label": " ",
+            "description": "Must be in format 2024-12-31T23:59:00.000",
+            "visibilityCondition": "model.is_date_entered_manually"
         },
         {
             "name": "time_granularity",
