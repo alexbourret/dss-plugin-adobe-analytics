@@ -6,7 +6,7 @@ logger = SafeLogger("api-client")
 
 
 class APIClient():
-    def __init__(self, server_url, auth, pagination=None, max_number_of_retries=None, should_fail_silently=False, pagination_type=None):
+    def __init__(self, server_url, auth, pagination=None, max_number_of_retries=None, should_fail_silently=False):
         self.session = requests.Session()
         self.server_url = server_url
         self.session.auth = auth
@@ -15,7 +15,6 @@ class APIClient():
         self.pagination = pagination or DefaultPagination()
         self.max_number_of_retries = max_number_of_retries or 1
         self.should_fail_silently = should_fail_silently
-        self.pagination_type = pagination_type
 
     def get(self, endpoint, url=None, params=None, data=None, json=None, raw=False):
         if url:
@@ -43,8 +42,7 @@ class APIClient():
         else:
             full_url = self.get_full_url(endpoint)
         logger.info("posting url={}, params={}, json={}, data={}".format(full_url, params, json, data))
-        if self.pagination_type == "json":
-            json, params = reog_request_for_post_pagination(json, params)
+        json, params = reorganize_request_for_post_pagination(json, params)
         response = self.session.post(
             full_url,
             params=params,
@@ -181,7 +179,8 @@ def display_response_error(response):
         logger.error("Not a requests.Response object")
 
 
-def reog_request_for_post_pagination(json, params):
+def reorganize_request_for_post_pagination(json, params):
+    # For post, move paging parameters from query string to json form
     json = {} or json
     params = {} or params
     logger.warning("Reorganizing pagination from params {} to json {}".format(params, json))
