@@ -83,7 +83,7 @@ class APIClient():
         full_url = "{}/{}".format(self.server_url, endpoint)
         return full_url
 
-    def get_next_row(self, endpoint, url=None, method=None, data_path=None, params=None, json=None, data=None):
+    def get_next_row(self, endpoint, url=None, method=None, data_path=None, params=None, json=None, data=None, error_handling=None):
         method = method or "GET"
         params = params or {}
         response = None
@@ -96,6 +96,8 @@ class APIClient():
                 response = self.post(endpoint, url=url, params=params, json=json, data=data, raw=True)
             items_retrieved = 0
             json_response = response.json()
+            if error_handling:
+                error_handling.assess(json_response)
             for row in get_next_row_from_response(json_response, data_path):
                 items_retrieved += 1
                 yield row
