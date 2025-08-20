@@ -112,7 +112,8 @@ class AdobeClient():
                 "segmentId": segment
             })
         logger.info("query={}".format(query))
-        for row in self.client.get_next_row("reports", data_path="rows", method="POST", json=query):
+        error_handling = ErrorHandler()
+        for row in self.client.get_next_row("reports", data_path="rows", method="POST", json=query, error_handling=error_handling):
             yield row
 
     def list_report_suites(self):
@@ -275,3 +276,38 @@ def generate_access_token(user_account, mock=False):
     if "error" in token:
         raise Exception("Error {} ({}): {}".format(status_code, token.get("error"), token.get("error_description", "")))
     return token.get("access_token")
+
+
+class ErrorHandler():
+    def __init__(self):
+        pass
+
+    def assess(self, json_response):
+        # {
+        #     'totalPages': 0,
+        #     'firstPage': True,
+        #     'lastPage': True,
+        #     'numberOfElements': 0,
+        #     'number': 0,
+        #     'totalElements': 0,
+        #     'columns': {
+        #         'columnIds': [],
+        #         'columnErrors': [{
+        #             'columnId': '0',
+        #             'errorCode': 'unauthorized_metric',
+        #             'errorId': '7896f04c-65c5-4834-9af9-93dc1c66dab0',
+        #             'errorDescription': 'User does not have access to the requested metric'
+        #         }]
+        #     },
+        #     'rows': [],
+        #     'summaryData': {}
+        # }
+        columns = json_response.get("columns", {})
+        column_errors = columns.get("columnErrors", [])
+        if column_errors:
+            errors = []
+            for colum_error in column_errors:
+                error_code = colum_error.get("errorCode")
+                error_description = colum_error.get("errorDescription")
+                errors.append("{}: {}".format(error_code, error_description))
+            raise Exception("Error: {}".format(", ".join(errors)))
