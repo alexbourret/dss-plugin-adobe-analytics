@@ -199,9 +199,7 @@ class AdobeClient():
 
     def next_segment(self, rsid):
         row_index = 0
-        for row in self.client.get_next_row("segments", data_path="content", params={
-                    "rsid": rsid
-        }):
+        for row in self.client.get_next_row("segments", data_path="content"):
             row_index += 1
             if row is None:
                 logger.error("empty row, stopping here")
@@ -241,9 +239,6 @@ class AdobeClient():
         segments = []
         for row in self.client.get_next_row(
                 "segments",
-                params={
-                    "rsid": rsid
-                },
                 data_path="content"
         ):
             segments.append(row)
