@@ -178,6 +178,26 @@ class AdobeClient():
                 return
             yield row
 
+    def next_calculated_metric(self, rsid):
+        # if mock is True:
+        #     for row in [{"id": "metrics/campaigninstances", "name": "Campaign Click-throughs"}, {"id": "metrics/cartadditions", "name": "Cart Additions"}]:
+        #         yield row
+        #     return
+        row_index = 0
+        for row in self.client.get_next_row("calculatedmetrics", params={
+                    "includeType": "all",
+                    "rsid": rsid
+        }):
+            row_index += 1
+            if row is None:
+                logger.error("empty row, stopping here")
+                return
+            if row_index > 1000:
+                logger.error("infinite loop in next_metric")
+                # just exploring, we don't want to block the plugin for that
+                return
+            yield row
+
     def next_dimension(self, rsid):
         # if mock is True:
         #     for row in [{"id": "variables/campaign", "name": "Tracking Code"}, {"id": "variables/clickmaplink", "name": "Activity Map Link"}]:
@@ -199,9 +219,7 @@ class AdobeClient():
 
     def next_segment(self, rsid):
         row_index = 0
-        for row in self.client.get_next_row("segments", data_path="content", params={
-                    "rsid": rsid
-        }):
+        for row in self.client.get_next_row("segments", data_path="content"):
             row_index += 1
             if row is None:
                 logger.error("empty row, stopping here")
@@ -218,6 +236,19 @@ class AdobeClient():
         for row in self.client.get_next_row(
                 "metrics",
                 params={
+                    "rsid": rsid
+                }
+        ):
+            metrics.append(row)
+        return metrics
+
+    def list_report_calculated_metrics(self, rsid):
+        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/metrics/
+        metrics = []
+        for row in self.client.get_next_row(
+                "calculatedmetrics",
+                params={
+                    "includeType": "all",
                     "rsid": rsid
                 }
         ):
@@ -242,7 +273,7 @@ class AdobeClient():
         for row in self.client.get_next_row(
                 "segments",
                 params={
-                    "rsid": rsid
+                    "includeType": "all"
                 },
                 data_path="content"
         ):
