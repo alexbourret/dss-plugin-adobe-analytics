@@ -3,6 +3,7 @@ from safe_logger import SafeLogger
 
 logger = SafeLogger("adobe pagination", ["password"])
 DEFAULT_PAGE_SIZE = 50
+FAILSAFE_MAX_PAGES = 2000
 
 
 class AdobePagination():
@@ -42,8 +43,8 @@ class AdobePagination():
                 if json_response.get("number") >= total_number_of_pages:
                     logger.info("number of pages reached -> no next page")
                     return False
-            if self.page_offset > 100:
-                logger.warning("failsafe: more that 100 pages -> stopping here")
+            if self.page_offset > FAILSAFE_MAX_PAGES:
+                logger.warning("failsafe: more that {} pages -> stopping here".format(FAILSAFE_MAX_PAGES))
                 return False
             else:
                 logger.debug("has next page = true")
