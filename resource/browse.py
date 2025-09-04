@@ -63,6 +63,15 @@ def do(payload, config, plugin_config, inputs):
                     value = metric.get("id")
                     if label and value:
                         choices.append_alphabetically(label, value)
+                try:
+                    for calculated_metric in client.next_calculated_metric(report_id):
+                        label = "{} 🧮 - {}".format(calculated_metric.get("name"), calculated_metric.get("id"))
+                        value = calculated_metric.get("id")
+                        if label and value:
+                            choices.append_alphabetically(label, value)
+                except Exception as error:
+                    logger.error("Error while lising calculated metrics: {}".format(error))
+
         elif parameter_name == "dimension":
             report_id = get_value_from_ui(payload, "report_id")
             logger.info("listing dimensions for rsid '{}'".format(report_id))
