@@ -184,7 +184,7 @@ class AdobeClient():
         #         yield row
         #     return
         row_index = 0
-        for row in self.client.get_next_row("calculatedmetrics", params={
+        for row in self.client.get_next_row("calculatedmetrics", data_path="content", params={
                     "includeType": "all",
                     "rsid": rsid
         }):
@@ -219,15 +219,15 @@ class AdobeClient():
 
     def next_segment(self, rsid):
         row_index = 0
-        for row in self.client.get_next_row("segments", data_path="content"):
+        for row in self.client.get_next_row("segments", params={"includeType": "all"}, data_path="content"):
             row_index += 1
             if row is None:
                 logger.error("empty row, stopping here")
                 return
-            if row_index > 1000:
-                logger.error("infinite loop in next_segment")
-                # just exploring, we don't want to block the plugin for that
-                return
+            # if row_index > 1000:
+            #     logger.error("infinite loop in next_segment")
+            #     # just exploring, we don't want to block the plugin for that
+            #     return
             yield row
 
     def list_report_metrics(self, rsid):
@@ -247,6 +247,7 @@ class AdobeClient():
         metrics = []
         for row in self.client.get_next_row(
                 "calculatedmetrics",
+                data_path="content",
                 params={
                     "includeType": "all",
                     "rsid": rsid
@@ -273,7 +274,8 @@ class AdobeClient():
         for row in self.client.get_next_row(
                 "segments",
                 params={
-                    "includeType": "all"
+                    "includeType": "all",
+                    "rsid": rsid
                 },
                 data_path="content"
         ):
