@@ -74,35 +74,40 @@ class AdobeAnalyticsConnector(Connector):
             mock=mock
         )
 
-        logger.info("Testing pagination on report_suites...")
-        try:
-            report_suites = self.client.list_report_suites()
-            logger.info("report_suites={}".format(report_suites))
-        except Exception as error:
-            logger.error("Error {} while listing report suites".format(error))
+        # We now it works
+        # logger.info("Testing pagination on report_suites...")
+        # try:
+        #     report_suites = self.client.list_report_suites()
+        #     logger.info("report_suites={}".format(report_suites))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report suites".format(error))
 
-        logger.info("Testing pagination on metrics for {}...".format(self.report_id))
-        try:
-            report_metrics = self.client.list_report_metrics(self.report_id)
-            logger.info("report_metrics={}".format(report_metrics))
-        except Exception as error:
-            logger.error("Error {} while listing report metrics".format(error))
+        # We now it works
+        # logger.info("Testing pagination on metrics for {}...".format(self.report_id))
+        # try:
+        #     report_metrics = self.client.list_report_metrics(self.report_id)
+        #     logger.info("report_metrics={}".format(report_metrics))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report metrics".format(error))
 
-        logger.info("Testing pagination on calculated metrics for {}...".format(self.report_id))
-        try:
-            report_calculated_metrics = self.client.list_report_calculated_metrics(self.report_id)
-            logger.info("report_calculated_metrics={}".format(report_calculated_metrics))
-        except Exception as error:
-            logger.error("Error {} while listing report calculated metrics".format(error))
+        # We now it works, data path fixed
+        # logger.info("Testing pagination on calculated metrics for {}...".format(self.report_id))
+        # try:
+        #     report_calculated_metrics = self.client.list_report_calculated_metrics(self.report_id)
+        #     logger.info("report_calculated_metrics={}".format(report_calculated_metrics))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report calculated metrics".format(error))
 
-        logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
-        try:
-            report_dimensions = self.client.list_report_dimensions(self.report_id)
-            logger.info("report_metrics={}".format(report_dimensions))
-        except Exception as error:
-            logger.error("Error {} while listing report dimensions".format(error))
+        # We now it works
+        # logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
+        # try:
+        #     report_dimensions = self.client.list_report_dimensions(self.report_id)
+        #     logger.info("report_metrics={}".format(report_dimensions))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report dimensions".format(error))
 
         logger.info("Testing pagination on segments for {}...".format(self.report_id))
+        # we bring 15k segments when no rsid provided, let's try with rsid now
         try:
             report_segments = self.client.list_report_segments(self.report_id)
             logger.info("report_segments={}".format(report_segments))
