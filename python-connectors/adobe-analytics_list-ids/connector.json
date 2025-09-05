@@ -50,6 +50,7 @@
         },
         {
             "name": "element_to_list",
+            "label": "Element to list",
             "type": "SELECT",
             "selectChoices": [
                 {
@@ -76,8 +77,8 @@
         },
         {
             "name": "report_id_manual",
-            "label": " ",
-            "description": "Report ID",
+            "label": "Report ID",
+            "description": "Optional",
             "type": "STRING",
             "visibilityCondition": "['metrics','calculated_metrics','dimensions','segments'].indexOf(model.element_to_list) >= 0"
         }
