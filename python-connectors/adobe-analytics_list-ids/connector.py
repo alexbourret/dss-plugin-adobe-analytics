@@ -49,14 +49,6 @@ class ListIDsConnector(Connector):
 
     def generate_rows(self, dataset_schema=None, dataset_partitioning=None,
                       partition_id=None, records_limit=-1):
-        """
-        The main reading method.
-
-        Returns a generator over the rows of the dataset (or partition)
-        Each yielded row must be a dictionary, indexed by column name.
-
-        The dataset schema and partitioning are given for information purpose.
-        """
         limit = RecordsLimit(records_limit)
         next = self.client.next_report_suites()
         if self.element_to_list == "metrics":
@@ -77,29 +69,13 @@ class ListIDsConnector(Connector):
         raise NotImplementedError
 
     def get_partitioning(self):
-        """
-        Return the partitioning schema that the connector defines.
-        """
         raise NotImplementedError
 
     def list_partitions(self, partitioning):
-        """Return the list of partitions for the partitioning scheme
-        passed as parameter"""
         return []
 
     def partition_exists(self, partitioning, partition_id):
-        """Return whether the partition passed as parameter exists
-
-        Implementation is only required if the corresponding flag is set to True
-        in the connector definition
-        """
         raise NotImplementedError
 
     def get_records_count(self, partitioning=None, partition_id=None):
-        """
-        Returns the count of records for the dataset (or a partition).
-
-        Implementation is only required if the corresponding flag is set to True
-        in the connector definition
-        """
         raise NotImplementedError
