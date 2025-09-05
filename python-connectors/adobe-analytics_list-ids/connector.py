@@ -1,0 +1,105 @@
+from dataiku.connector import Connector
+from records_limit import RecordsLimit
+from adobe_client import AdobeClient
+from safe_logger import SafeLogger
+from adobe_analytics_common import (
+    get_connection_from_config
+)
+from plugin_details import get_initialization_string
+from project_variable import ProjectVariable
+
+
+logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
+
+
+class ListIDsConnector(Connector):
+
+    def __init__(self, config, plugin_config):
+        Connector.__init__(self, config, plugin_config)
+        logger.info("{} ListIDsConnector with config={}".format(
+            get_initialization_string(),
+            logger.filter_secrets(config)
+        ))
+        mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
+        self.element_to_list = self.config.get("element_to_list", "reports")
+        self.report_id_manual = self.config.get("report_id_manual", None)
+        if self.report_id_manual == '':
+            self.report_id_manual = None
+        auth_type = config.get("auth_type", "user_account")
+        logger.info("auth_type={}".format(auth_type))
+        user_account = config.get(auth_type, {})
+        bearer_token = user_account.get("bearer_token")
+        organization_id = user_account.get("organization_id")
+        company_id = user_account.get("company_id")
+        api_key = user_account.get("api_key")
+
+        organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
+        self.client = AdobeClient(
+            company_id=company_id,
+            api_key=api_key,
+            access_token=bearer_token,
+            organization_id=organization_id,
+            mock=mock
+        )
+
+    def get_read_schema(self):
+        # In this example, we don't specify a schema here, so DSS will infer the schema
+        # from the columns actually returned by the generate_rows method
+        return None
+
+    def generate_rows(self, dataset_schema=None, dataset_partitioning=None,
+                      partition_id=None, records_limit=-1):
+        """
+        The main reading method.
+
+        Returns a generator over the rows of the dataset (or partition)
+        Each yielded row must be a dictionary, indexed by column name.
+
+        The dataset schema and partitioning are given for information purpose.
+        """
+        limit = RecordsLimit(records_limit)
+        next = self.client.next_report_suites()
+        if self.element_to_list == "metrics":
+            next = self.client.next_metric(self.report_id_manual)
+        elif self.element_to_list == "calculated_metrics":
+            next = self.client.next_calculated_metric(self.report_id_manual)
+        elif self.element_to_list == "dimensions":
+            next = self.client.next_dimension(self.report_id_manual)
+        elif self.element_to_list == "segments":
+            next = self.client.next_segment(self.report_id_manual)
+        for item in next:
+            yield item
+            if limit.is_reached():
+                return
+
+    def get_writer(self, dataset_schema=None, dataset_partitioning=None,
+                   partition_id=None, write_mode="OVERWRITE"):
+        raise NotImplementedError
+
+    def get_partitioning(self):
+        """
+        Return the partitioning schema that the connector defines.
+        """
+        raise NotImplementedError
+
+    def list_partitions(self, partitioning):
+        """Return the list of partitions for the partitioning scheme
+        passed as parameter"""
+        return []
+
+    def partition_exists(self, partitioning, partition_id):
+        """Return whether the partition passed as parameter exists
+
+        Implementation is only required if the corresponding flag is set to True
+        in the connector definition
+        """
+        raise NotImplementedError
+
+    def get_records_count(self, partitioning=None, partition_id=None):
+        """
+        Returns the count of records for the dataset (or a partition).
+
+        Implementation is only required if the corresponding flag is set to True
+        in the connector definition
+        """
+        raise NotImplementedError
