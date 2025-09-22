@@ -118,7 +118,6 @@ class AdobeClient():
 
     def list_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
-        # response = self.get("reportsuites/collections/suites")
         report_suites = []
         row_index = 0
         for row in self.client.get_next_row("reportsuites/collections/suites", data_path="content"):
@@ -138,11 +137,6 @@ class AdobeClient():
 
     def next_report_suites(self):
         # GET https://analytics.adobe.io/api/{GLOBAL_COMPANY_ID}/reportsuites/collections/suites
-        # response = self.get("reportsuites/collections/suites")
-        # if mock is True:
-        #     for row in [{'collectionItemType': 'reportsuite', 'id': 'reporta', 'name': 'Report A', 'rsid': 'reporta'}, {'collectionItemType': 'reportsuite', 'id': 'reportb', 'name': 'Report B', 'rsid': 'reportb'}]:
-        #         yield row
-        #     return
         row_index = 0
         for row in self.client.get_next_row("reportsuites/collections/suites", data_path="content"):
             row_index += 1
@@ -152,10 +146,6 @@ class AdobeClient():
             yield row
 
     def next_metric(self, rsid):
-        # if mock is True:
-        #     for row in [{"id": "metrics/campaigninstances", "name": "Campaign Click-throughs"}, {"id": "metrics/cartadditions", "name": "Cart Additions"}]:
-        #         yield row
-        #     return
         row_index = 0
         for row in self.client.get_next_row("metrics", params={
                     "rsid": rsid
@@ -167,10 +157,6 @@ class AdobeClient():
             yield row
 
     def next_calculated_metric(self, rsid):
-        # if mock is True:
-        #     for row in [{"id": "metrics/campaigninstances", "name": "Campaign Click-throughs"}, {"id": "metrics/cartadditions", "name": "Cart Additions"}]:
-        #         yield row
-        #     return
         row_index = 0
         for row in self.client.get_next_row("calculatedmetrics", data_path="content", params={
                     "includeType": "all",
@@ -183,10 +169,6 @@ class AdobeClient():
             yield row
 
     def next_dimension(self, rsid):
-        # if mock is True:
-        #     for row in [{"id": "variables/campaign", "name": "Tracking Code"}, {"id": "variables/clickmaplink", "name": "Activity Map Link"}]:
-        #         yield row
-        #     return
         row_index = 0
         for row in self.client.get_next_row("dimensions", params={
                     "rsid": rsid
