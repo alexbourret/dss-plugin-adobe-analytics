@@ -4,11 +4,9 @@ from adobe_analytics_common import (
 )
 from adobe_client import AdobeClient
 from dss_selector_choices import DSSSelectorChoices, get_value_from_ui
-from project_variable import ProjectVariable
 
 
 logger = SafeLogger("adobe-analytics browser", ["bearer_token", "api_key", "client_secret"])
-mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
 
 
 def do(payload, config, plugin_config, inputs):
@@ -20,7 +18,7 @@ def do(payload, config, plugin_config, inputs):
     choices = DSSSelectorChoices()
 
     try:
-        organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
+        organization_id, company_id, api_key, bearer_token, mock = get_connection_from_config(config)
     except Exception as error:
         logger.error("Error while getting token : {}".format(error))
         return choices.text_message("Error: Please check the logs.")

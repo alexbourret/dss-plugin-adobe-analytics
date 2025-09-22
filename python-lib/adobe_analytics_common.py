@@ -1,5 +1,6 @@
 from adobe_client import generate_access_token
 from safe_logger import SafeLogger
+from project_variable import ProjectVariable
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -35,7 +36,8 @@ def reorder_rows(row_getter, metrics_names):
         yield output_row
 
 
-def get_connection_from_config(config, mock=False):
+def get_connection_from_config(config):
+    mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
     auth_type = config.get("auth_type", "user_account")
     logger.info("auth_type={}".format(auth_type))
     user_account = config.get(auth_type, {})
@@ -47,7 +49,7 @@ def get_connection_from_config(config, mock=False):
         logger.info("auth type is server_to_server")
         bearer_token = generate_access_token(user_account, mock=mock)
         api_key = user_account.get("client_id")
-    return organization_id, company_id, api_key, bearer_token
+    return organization_id, company_id, api_key, bearer_token, mock
 
 
 def dss_date_to_adobe(dss_date):
