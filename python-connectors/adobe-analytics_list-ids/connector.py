@@ -6,7 +6,6 @@ from adobe_analytics_common import (
     get_connection_from_config
 )
 from plugin_details import get_initialization_string
-from project_variable import ProjectVariable
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -20,20 +19,13 @@ class ListIDsConnector(Connector):
             get_initialization_string(),
             logger.filter_secrets(config)
         ))
-        mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
+
         self.element_to_list = self.config.get("element_to_list", "reports")
         self.report_id_manual = self.config.get("report_id_manual", None)
         if self.report_id_manual == '':
             self.report_id_manual = None
-        auth_type = config.get("auth_type", "user_account")
-        logger.info("auth_type={}".format(auth_type))
-        user_account = config.get(auth_type, {})
-        bearer_token = user_account.get("bearer_token")
-        organization_id = user_account.get("organization_id")
-        company_id = user_account.get("company_id")
-        api_key = user_account.get("api_key")
 
-        organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
+        organization_id, company_id, api_key, bearer_token, mock = get_connection_from_config(config)
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,
