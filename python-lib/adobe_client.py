@@ -242,46 +242,6 @@ class AdobeClient():
             metrics.append(row)
         return metrics
 
-    def list_report_calculated_metrics(self, rsid):
-        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/metrics/
-        metrics = []
-        for row in self.client.get_next_row(
-                "calculatedmetrics",
-                data_path="content",
-                params={
-                    "includeType": "all",
-                    "rsid": rsid
-                }
-        ):
-            metrics.append(row)
-        return metrics
-
-    def list_report_dimensions(self, rsid):
-        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/dimensions/
-        dimensions = []
-        for row in self.client.get_next_row(
-                "dimensions",
-                params={
-                    "rsid": rsid
-                }
-        ):
-            dimensions.append(row)
-        return dimensions
-
-    def list_report_segments(self, rsid):
-        # https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/segments/
-        segments = []
-        for row in self.client.get_next_row(
-                "segments",
-                params={
-                    "includeType": "all",
-                    "rsid": rsid
-                },
-                data_path="content"
-        ):
-            segments.append(row)
-        return segments
-
 
 def generate_access_token(user_account, mock=False):
     import requests
