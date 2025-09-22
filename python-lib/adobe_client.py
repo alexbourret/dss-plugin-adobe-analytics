@@ -127,10 +127,6 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 break
-            if row_index > 1000:
-                logger.error("loop in list_report_suites")
-                # just exploring, we don't want to block the plugin for that
-                break
         logger.info("list_report_suites looped {} times".format(row_index))
         return report_suites
 
@@ -153,10 +149,6 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 return
-            if row_index > 1000:
-                logger.error("infinite loop in next_report_suites")
-                # just exploring, we don't want to block the plugin for that
-                return
             yield row
 
     def next_metric(self, rsid):
@@ -171,10 +163,6 @@ class AdobeClient():
             row_index += 1
             if row is None:
                 logger.error("empty row, stopping here")
-                return
-            if row_index > 1000:
-                logger.error("infinite loop in next_metric")
-                # just exploring, we don't want to block the plugin for that
                 return
             yield row
 
@@ -192,10 +180,6 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 return
-            if row_index > 1000:
-                logger.error("infinite loop in next_metric")
-                # just exploring, we don't want to block the plugin for that
-                return
             yield row
 
     def next_dimension(self, rsid):
@@ -211,10 +195,6 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 return
-            if row_index > 1000:
-                logger.error("infinite loop in next_dimension")
-                # just exploring, we don't want to block the plugin for that
-                return
             yield row
 
     def next_segment(self, rsid):
@@ -224,10 +204,6 @@ class AdobeClient():
             if row is None:
                 logger.error("empty row, stopping here")
                 return
-            # if row_index > 1000:
-            #     logger.error("infinite loop in next_segment")
-            #     # just exploring, we don't want to block the plugin for that
-            #     return
             yield row
 
     def list_report_metrics(self, rsid):
