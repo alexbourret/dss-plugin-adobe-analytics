@@ -4,10 +4,11 @@ from adobe_analytics_common import (
 )
 from adobe_client import AdobeClient
 from dss_selector_choices import DSSSelectorChoices, get_value_from_ui
+from project_variable import ProjectVariable
 
 
 logger = SafeLogger("adobe-analytics browser", ["bearer_token", "api_key", "client_secret"])
-mock = False
+mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
 
 
 def do(payload, config, plugin_config, inputs):

@@ -7,9 +7,10 @@ from safe_logger import SafeLogger
 from records_limit import RecordsLimit
 from dss_selector_choices import get_value_from_ui
 from diagnostics import test_urls
+from project_variable import ProjectVariable
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
-mock = False
+mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
 
 
 class AdobeAnalyticsConnector(Connector):
