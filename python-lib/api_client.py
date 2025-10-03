@@ -185,7 +185,7 @@ def reorganize_request_for_post_pagination(json, params):
     # For post, move paging parameters from query string to json form
     json = {} or json
     params = {} or params
-    logger.warning("Reorganizing pagination from params {} to json {}".format(params, json))
+    # logger.warning("Reorganizing pagination from params {} to json {}".format(params, json))
     page = params.pop("page", None)
     if page is not None:
         settings = json.pop("settings", {})

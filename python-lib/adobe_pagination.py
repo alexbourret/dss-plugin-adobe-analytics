@@ -20,7 +20,7 @@ class AdobePagination():
         try:
             logger.info("decoding json")
             json_response = response.json()
-            logger.info("json_response={}".format(json_response))
+            # logger.info("json_response={}".format(json_response))
             if isinstance(json_response, list):
                 # The data return is an array,
                 # we can assume this is the only page
