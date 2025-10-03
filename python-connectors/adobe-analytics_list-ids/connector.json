@@ -13,19 +13,20 @@
             "label": "Type of authentication",
             "type": "SELECT",
             "selectChoices": [
-                {
+                /*{
                     "value": "user_account",
                     "label": "Single Sign On"
                 },
                 {
                     "value": "service_account",
                     "label": "API key only"
-                },
+                },*/
                 {
                     "value": "server_to_server",
                     "label": "Server-to-Server"
                 }
-            ]
+            ],
+            "defaultValue": "server_to_server"
         },
         {
             "name": "user_account",
