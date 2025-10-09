@@ -6,7 +6,8 @@
         "description": "",
         "author": "admin",
         "icon": "icon-adobe_analytics",
-        "tags": [],
+        "category": "Connect",
+        "tags": ["Data source", "Analytics", "Dataset"],
         "url": "https://github.com/alexbourret/dss-plugin-adobe-analytics/blob/master/README.md",
         "licenseInfo": "Apache Software License"
     }
