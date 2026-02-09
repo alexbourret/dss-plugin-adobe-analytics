@@ -7,9 +7,11 @@ from safe_logger import SafeLogger
 from records_limit import RecordsLimit
 from dss_selector_choices import get_value_from_ui
 from diagnostics import test_urls
+from project_variable import ProjectVariable
+import json
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
-mock = False
+mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
 
 
 class AdobeAnalyticsConnector(Connector):
@@ -44,10 +46,11 @@ class AdobeAnalyticsConnector(Connector):
         metrics_ids = config.get("metrics_ids", [])
         self.metrics = []
         self.metrics_names = []
-        for metric_name in metrics_ids:
+        for metric_dict in metrics_ids:
+            metric_name, metric_id = decode_metric_id(metric_dict)
             final_metric = {
                 "columnId": "{}".format(column_index),
-                "id": metric_name
+                "id": metric_id
             }
             self.metrics.append(final_metric)
             self.metrics_names.append(metric_name)
@@ -203,3 +206,16 @@ class AdobeAnalyticsConnector(Connector):
         in the connector definition
         """
         raise NotImplementedError
+
+
+def decode_metric_id(metric_dict):
+    json_metric = metric_dict
+    try:
+        json_metric = json.loads(metric_dict)
+    except Exception:
+        pass
+
+    if isinstance(json_metric, dict):
+        return json_metric.get("name"), json_metric.get("id")
+    else:
+        return json_metric, json_metric

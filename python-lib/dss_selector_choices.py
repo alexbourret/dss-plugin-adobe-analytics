@@ -1,3 +1,6 @@
+import json
+
+
 class DSSSelectorChoices(object):
     def __init__(self):
         self.choices = []
@@ -14,7 +17,7 @@ class DSSSelectorChoices(object):
         index = 0
         new_choice = {
             "label": new_label,
-            "value": new_value
+            "value": encode(new_value)
         }
         for choice in self.choices:
             choice_label = choice.get("label")
@@ -65,3 +68,11 @@ def get_value_from_ui(config, key_name):
     if value == "_dku_manual_select":
         value = root_model.get("{}_manual".format(key_name))
     return value
+
+
+def encode(value):
+    if isinstance(value, dict) or isinstance(value, list):
+        json_value = json.dumps(value)
+        return json_value
+    else:
+        return value

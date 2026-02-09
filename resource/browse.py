@@ -4,10 +4,11 @@ from adobe_analytics_common import (
 )
 from adobe_client import AdobeClient
 from dss_selector_choices import DSSSelectorChoices, get_value_from_ui
+from project_variable import ProjectVariable
 
 
 logger = SafeLogger("adobe-analytics browser", ["bearer_token", "api_key", "client_secret"])
-mock = False
+mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
 
 
 def do(payload, config, plugin_config, inputs):
@@ -60,13 +61,19 @@ def do(payload, config, plugin_config, inputs):
                     # Metric's labels are not unique, but multiselect cannot stand that
                     # so the metric ID is added to the label
                     label = "{} - {}".format(metric.get("name"), metric.get("id"))
-                    value = metric.get("id")
+                    value = {
+                        "name": metric.get("name"),
+                        "id": metric.get("id")
+                    }
                     if label and value:
                         choices.append_alphabetically(label, value)
                 try:
                     for calculated_metric in client.next_calculated_metric(report_id):
                         label = "{} 🧮 - {}".format(calculated_metric.get("name"), calculated_metric.get("id"))
-                        value = calculated_metric.get("id")
+                        value = {
+                            "name": calculated_metric.get("name"),
+                            "id": calculated_metric.get("id")
+                        }
                         if label and value:
                             choices.append_alphabetically(label, value)
                 except Exception as error:
