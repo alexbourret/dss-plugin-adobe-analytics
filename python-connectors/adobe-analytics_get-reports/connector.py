@@ -17,7 +17,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.18 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.20 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -74,20 +74,23 @@ class AdobeAnalyticsConnector(Connector):
             mock=mock
         )
 
-        logger.info("Testing pagination on report_suites...")
-        try:
-            report_suites = self.client.list_report_suites()
-            logger.info("report_suites={}".format(report_suites))
-        except Exception as error:
-            logger.error("Error {} while listing report suites".format(error))
+        # We now it works
+        # logger.info("Testing pagination on report_suites...")
+        # try:
+        #     report_suites = self.client.list_report_suites()
+        #     logger.info("report_suites={}".format(report_suites))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report suites".format(error))
 
-        logger.info("Testing pagination on metrics for {}...".format(self.report_id))
-        try:
-            report_metrics = self.client.list_report_metrics(self.report_id)
-            logger.info("report_metrics={}".format(report_metrics))
-        except Exception as error:
-            logger.error("Error {} while listing report metrics".format(error))
+        # We now it works
+        # logger.info("Testing pagination on metrics for {}...".format(self.report_id))
+        # try:
+        #     report_metrics = self.client.list_report_metrics(self.report_id)
+        #     logger.info("report_metrics={}".format(report_metrics))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report metrics".format(error))
 
+        # We now it works, data path fixed
         logger.info("Testing pagination on calculated metrics for {}...".format(self.report_id))
         try:
             report_calculated_metrics = self.client.list_report_calculated_metrics(self.report_id)
@@ -95,27 +98,29 @@ class AdobeAnalyticsConnector(Connector):
         except Exception as error:
             logger.error("Error {} while listing report calculated metrics".format(error))
 
-        logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
-        try:
-            report_dimensions = self.client.list_report_dimensions(self.report_id)
-            logger.info("report_metrics={}".format(report_dimensions))
-        except Exception as error:
-            logger.error("Error {} while listing report dimensions".format(error))
+        # We now it works
+        # logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
+        # try:
+        #     report_dimensions = self.client.list_report_dimensions(self.report_id)
+        #     logger.info("report_metrics={}".format(report_dimensions))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report dimensions".format(error))
 
-        logger.info("Testing pagination on segments for {}...".format(self.report_id))
-        try:
-            report_segments = self.client.list_report_segments(self.report_id)
-            logger.info("report_segments={}".format(report_segments))
-        except Exception as error:
-            logger.error("Error {} while listing report segments".format(error))
+        # logger.info("Testing pagination on segments for {}...".format(self.report_id))
+        # # we bring 15k segments when no rsid provided, let's try with rsid now
+        # try:
+        #     report_segments = self.client.list_report_segments(self.report_id)
+        #     logger.info("report_segments={}".format(report_segments))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report segments".format(error))
 
-        logger.info("Testing getting info on report suite {}".format(self.report_id))
-        # Goal: find the report's timezone to translate the UI date range
-        try:
-            report_info = self.client.get_report_suite_details(self.report_id)
-            logger.info("Details about {}: {}".format(self.report_id, report_info))
-        except Exception as error:
-            logger.error("Error {} while getting details".format(error))
+        # logger.info("Testing getting info on report suite {}".format(self.report_id))
+        # # Goal: find the report's timezone to translate the UI date range
+        # try:
+        #     report_info = self.client.get_report_suite_details(self.report_id)
+        #     logger.info("Details about {}: {}".format(self.report_id, report_info))
+        # except Exception as error:
+        #     logger.error("Error {} while getting details".format(error))
 
     def get_read_schema(self):
         """

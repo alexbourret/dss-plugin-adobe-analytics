@@ -25,7 +25,8 @@ class DSSSelectorChoices(object):
         self.choices.insert(index, new_choice)
 
     def append_manual_select(self):
-        self.choices.append(
+        self.choices.insert(
+            0,
             {
                 "label": "✍️ Enter manually",
                 "value": "_dku_manual_select"

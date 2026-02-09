@@ -1,0 +1,86 @@
+{
+    "meta" : {
+        "label": "List IDs",
+        "description": "List all available reports, metrics, calculated metrics, dimensions or segments IDs",
+        "icon": "icon-adobe_analytics"
+    },
+    "readable": true,
+    "writable": false,
+    "supportAppend": false,
+    "params": [
+        {
+            "name": "auth_type",
+            "label": "Type of authentication",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "user_account",
+                    "label": "Single Sign On"
+                },
+                {
+                    "value": "service_account",
+                    "label": "API key only"
+                },
+                {
+                    "value": "server_to_server",
+                    "label": "Server-to-Server"
+                }
+            ]
+        },
+        {
+            "name": "user_account",
+            "label": "User account",
+            "type": "PRESET",
+            "parameterSetId": "user-account",
+            "visibilityCondition": "model.auth_type == 'user_account'"
+        },
+        {
+            "name": "service_account",
+            "label": "API key only",
+            "type": "PRESET",
+            "parameterSetId": "service-account",
+            "visibilityCondition": "model.auth_type == 'service_account'"
+        },
+        {
+            "name": "server_to_server",
+            "label": "Server-to-Server",
+            "type": "PRESET",
+            "parameterSetId": "server-to-server",
+            "visibilityCondition": "model.auth_type == 'server_to_server'"
+        },
+        {
+            "name": "element_to_list",
+            "label": "Element to list",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "reports",
+                    "label": "Reports"
+                },
+                {
+                    "value": "metrics",
+                    "label": "Metrics"
+                },
+                {
+                    "value": "calculated_metrics",
+                    "label": "Calculated metrics"
+                },
+                {
+                    "value": "dimensions",
+                    "label": "Dimensions"
+                },
+                {
+                    "value": "segments",
+                    "label": "Segments"
+                }
+            ]
+        },
+        {
+            "name": "report_id_manual",
+            "label": "Report ID",
+            "description": "Optional",
+            "type": "STRING",
+            "visibilityCondition": "['metrics','calculated_metrics','dimensions','segments'].indexOf(model.element_to_list) >= 0"
+        }
+    ]
+}
