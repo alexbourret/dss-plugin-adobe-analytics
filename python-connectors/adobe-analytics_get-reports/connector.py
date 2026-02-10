@@ -68,6 +68,7 @@ class AdobeAnalyticsConnector(Connector):
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
         self.shoud_add_total_row = config.get("shoud_add_total_row", False)
+        self.shoud_add_date_column = config.get("shoud_add_date_column", False)
 
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
         self.client = AdobeClient(
@@ -164,6 +165,8 @@ class AdobeAnalyticsConnector(Connector):
         ):
             if self.shoud_add_total_row:
                 accumulator.add_row(row)
+            if self.shoud_add_date_column:
+                row["Date"] = self.start_date
             yield row
             if limit.is_reached():
                 return
