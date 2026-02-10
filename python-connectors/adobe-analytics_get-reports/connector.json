@@ -183,6 +183,13 @@
             "description": "(id)",
             "type": "STRING",
             "visibilityCondition": "(model.segment=='_dku_manual_select')"
+        },
+        {
+            "name": "shoud_add_total_row",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Add a total row",
+            "defaultValue": false
         }
     ]
 }

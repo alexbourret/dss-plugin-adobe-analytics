@@ -67,6 +67,7 @@ class AdobeAnalyticsConnector(Connector):
         organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
+        self.shoud_add_total_row = config.get("shoud_add_total_row", False)
 
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
         self.client = AdobeClient(
@@ -154,15 +155,23 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("generate_rows, records_limit={}".format(records_limit))
         limit = RecordsLimit(records_limit)
         logger.info("Before get_reports")
+        accumulator = Accumulator()
 
         for row in reorder_rows(self.client.next_report_row(
                 report_id=self.report_id, start_date=self.start_date, end_date=self.end_date,
                 metrics=self.metrics, dimension=self.dimension, segment=self.segment
             ), self.metrics_names
         ):
+            if self.shoud_add_total_row:
+                accumulator.add_row(row)
             yield row
             if limit.is_reached():
                 return
+        if self.shoud_add_total_row:
+            total_row = accumulator.get_total()
+            total_row["item_id"] = None
+            total_row["item_name"] = "Total"
+            yield total_row
 
     def get_writer(self, dataset_schema=None, dataset_partitioning=None,
                    partition_id=None, write_mode="OVERWRITE"):
@@ -219,3 +228,20 @@ def decode_metric_id(metric_dict):
         return json_metric.get("name"), json_metric.get("id")
     else:
         return json_metric, json_metric
+
+
+class Accumulator():
+    def __init__(self):
+        self.accumulator = {}
+
+    def add_row(self, row):
+        for key in row:
+            if key not in self.accumulator:
+                self.accumulator[key] = 0
+            try:
+                self.accumulator[key] += int(row.get(key))
+            except Exception:
+                pass
+
+    def get_total(self):
+        return self.accumulator
