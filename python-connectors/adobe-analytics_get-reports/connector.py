@@ -96,12 +96,12 @@ class AdobeAnalyticsConnector(Connector):
         #     logger.error("Error {} while listing report metrics".format(error))
 
         # We now it works, data path fixed
-        logger.info("Testing pagination on calculated metrics for {}...".format(self.report_id))
-        try:
-            report_calculated_metrics = self.client.list_report_calculated_metrics(self.report_id)
-            logger.info("report_calculated_metrics={}".format(report_calculated_metrics))
-        except Exception as error:
-            logger.error("Error {} while listing report calculated metrics".format(error))
+        # logger.info("Testing pagination on calculated metrics for {}...".format(self.report_id))
+        # try:
+        #     report_calculated_metrics = self.client.list_report_calculated_metrics(self.report_id)
+        #     logger.info("report_calculated_metrics={}".format(report_calculated_metrics))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report calculated metrics".format(error))
 
         # We now it works
         # logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
