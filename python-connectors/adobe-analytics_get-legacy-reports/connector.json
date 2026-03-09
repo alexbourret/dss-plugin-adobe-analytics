@@ -1,0 +1,172 @@
+{
+    "meta" : {
+        "label": "Get Legacy Reports (v1.4)",
+        "description": "",
+        "icon": "icon-adobe_analytics"
+    },
+    "readable": true,
+    "writable": false,
+    "supportAppend": false,
+    "kind": "PYTHON",
+    "paramsPythonSetup": "browse_legacy.py",
+    "params": [
+        {
+            "name": "version_number",
+            "label": "Alpha.21 Legacy",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "auth_type",
+            "label": "Type of authentication",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "user_account",
+                    "label": "Single Sign On"
+                },
+                {
+                    "value": "service_account",
+                    "label": "API key only"
+                },
+                {
+                    "value": "server_to_server",
+                    "label": "Server-to-Server"
+                }
+            ]
+        },
+        {
+            "name": "user_account",
+            "label": "User account",
+            "type": "PRESET",
+            "parameterSetId": "user-account",
+            "visibilityCondition": "model.auth_type == 'user_account'"
+        },
+        {
+            "name": "service_account",
+            "label": "API key only",
+            "type": "PRESET",
+            "parameterSetId": "service-account",
+            "visibilityCondition": "model.auth_type == 'service_account'"
+        },
+        {
+            "name": "server_to_server",
+            "label": "Server-to-Server",
+            "type": "PRESET",
+            "parameterSetId": "server-to-server",
+            "visibilityCondition": "model.auth_type == 'server_to_server'"
+        },
+        {
+            "name": "report_id",
+            "label": "Report Suite ID",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["auth_type", "server_to_server", "service_account", "user_account"]
+        },
+        {
+            "name": "report_id_manual",
+            "label": " ",
+            "description": "(id)",
+            "type": "STRING",
+            "visibilityCondition": "(model.report_id=='_dku_manual_select')"
+        },
+        {
+            "name": "is_date_entered_manually",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Enter date manually",
+            "defaultValue": false
+        },
+        {
+            "name": "start_date",
+            "label": " ",
+            "description": "From",
+            "type": "DATE",
+            "visibilityCondition": "!model.is_date_entered_manually"
+        },
+        {
+            "name": "manual_start_date",
+            "type": "STRING",
+            "label": " ",
+            "description": "From",
+            "visibilityCondition": "model.is_date_entered_manually"
+        },
+        {
+            "name": "end_date",
+            "label": " ",
+            "description": "To",
+            "type": "DATE",
+            "visibilityCondition": "!model.is_date_entered_manually"
+        },
+        {
+            "name": "manual_end_date",
+            "type": "STRING",
+            "label": " ",
+            "description": "To",
+            "visibilityCondition": "model.is_date_entered_manually"
+        },
+        {
+            "name": "manual-time-doc-separator",
+            "type": "SEPARATOR",
+            "label": " ",
+            "description": "Format: YYYY-MM-DD or YYYY-MM-DDT23:59:00.000",
+            "visibilityCondition": "model.is_date_entered_manually"
+        },
+        {
+            "name": "metrics_ids",
+            "label": "Metrics",
+            "description": "",
+            "type": "MULTISELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
+        },
+        {
+            "name": "dimensions_ids",
+            "label": "Dimensions",
+            "description": "Select one or more dimensions",
+            "type": "MULTISELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
+        },
+        {
+            "name": "dimensions_manual",
+            "label": " ",
+            "description": "Extra dimension ids (comma-separated, optional)",
+            "type": "STRING"
+        },
+        {
+            "name": "segment",
+            "label": "Segment",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
+        },
+        {
+            "name": "segment_manual",
+            "label": " ",
+            "description": "(id)",
+            "type": "STRING",
+            "visibilityCondition": "(model.segment=='_dku_manual_select')"
+        },
+        {
+            "name": "max_rows_per_dimension",
+            "label": "Rows per dimension",
+            "description": "Maximum ranked values per dimension level",
+            "type": "INT",
+            "defaultValue": 50000
+        },
+        {
+            "name": "shoud_add_total_row",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Add a total row",
+            "defaultValue": false
+        },
+        {
+            "name": "shoud_add_date_column",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Add a date column",
+            "defaultValue": false
+        }
+    ]
+}
