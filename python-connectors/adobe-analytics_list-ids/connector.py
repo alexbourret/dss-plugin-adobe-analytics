@@ -33,12 +33,14 @@ class ListIDsConnector(Connector):
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
 
-        organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
+        organization_id, company_id, api_key, bearer_token, username, password = get_connection_from_config(config, mock=mock)
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,
             access_token=bearer_token,
             organization_id=organization_id,
+            username=username,
+            password=password,
             mock=mock
         )
 

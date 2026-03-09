@@ -8,7 +8,7 @@ logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "
 
 
 class AdobeClient():
-    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False):
+    def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, username=None, password=None, mock=False):
         if mock:
             logger.warning("Mock mode ! Get mock server started")
             server_url = "http://localhost:3001/api/{}".format(company_id)
@@ -17,7 +17,13 @@ class AdobeClient():
         pagination = AdobePagination()
         self.client = APIClient(
             server_url=server_url,
-            auth=AdobeAuth(api_key=api_key, bearer_token=access_token, organization_id=organization_id),
+            auth=AdobeAuth(
+                api_key=api_key,
+                bearer_token=access_token,
+                organization_id=organization_id,
+                username=username,
+                password=password
+            ),
             pagination=pagination,
             max_number_of_retries=1
         )

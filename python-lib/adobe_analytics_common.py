@@ -47,7 +47,7 @@ def get_connection_from_config(config, mock=False):
         logger.info("auth type is server_to_server")
         bearer_token = generate_access_token(user_account, mock=mock)
         api_key = user_account.get("client_id")
-    return organization_id, company_id, api_key, bearer_token
+    return organization_id, company_id, api_key, bearer_token, None, None 
 
 
 def dss_date_to_adobe(dss_date):
