@@ -42,3 +42,16 @@ In cases where the number of report suites, metrics, dimensions or segments is t
 - Press **Test & Get Schema**
 
 Each of these lists contains more details than what is displayed in the selectors. Once the element(s) of interest is identified, copy the row entry from the **id** column. Then, in the **Get Reports** dataset, select "**✍️ Enter manually**" and paste the element's id in the id box.
+
+### Dimension breakdown recipe
+
+The plugin also provides a recipe: **Recipe > Plugins > Adobe Analytics > Dimension Breakdown**.
+
+Use it when you need a second-level dimension breakdown from a first-level Adobe report:
+
+- Build an input dataset with **Get Reports**
+- Enable **Add a breakdown column** in that dataset configuration
+- Run the **Dimension Breakdown** recipe on this dataset
+- Select the target dimension to break down by
+
+The recipe reuses the report context (`report_id`, date range, metrics, source dimension and segment) from the input dataset and calls Adobe Analytics v2 breakdown queries for each input row.
