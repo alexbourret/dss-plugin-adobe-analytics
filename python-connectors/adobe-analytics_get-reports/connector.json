@@ -197,6 +197,13 @@
             "label": " ",
             "description": "Add a date column",
             "defaultValue": false
-        }
+        },
+        {
+            "name": "should_provide_breakdown_data",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Add a breakdown column",
+            "defaultValue": false
+         }
     ]
 }
