@@ -1,0 +1,92 @@
+{
+    "meta": {
+        "label": "Dimension Breakdown",
+        "description": "Break down each row of an Adobe Analytics dataset by another dimension",
+        "icon": "icon-adobe_analytics"
+    },
+    "kind": "PYTHON",
+    "paramsPythonSetup": "browse.py",
+    "selectableFromDataset": "input_dataset",
+    "inputRoles": [
+        {
+            "name": "input_dataset",
+            "label": "Input Adobe dataset",
+            "description": "Dataset created with Get Reports and 'Add a breakdown column' enabled",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset": true
+        }
+    ],
+    "outputRoles": [
+        {
+            "name": "output_dataset",
+            "label": "Output breakdown dataset",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset": true
+        }
+    ],
+    "params": [
+        {
+            "name": "auth_type",
+            "label": "Type of authentication",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "user_account",
+                    "label": "Single Sign On"
+                },
+                {
+                    "value": "service_account",
+                    "label": "API key only"
+                },
+                {
+                    "value": "server_to_server",
+                    "label": "Server-to-Server"
+                }
+            ]
+        },
+        {
+            "name": "user_account",
+            "label": "User account",
+            "type": "PRESET",
+            "parameterSetId": "user-account",
+            "visibilityCondition": "model.auth_type == 'user_account'"
+        },
+        {
+            "name": "service_account",
+            "label": "API key only",
+            "type": "PRESET",
+            "parameterSetId": "service-account",
+            "visibilityCondition": "model.auth_type == 'service_account'"
+        },
+        {
+            "name": "server_to_server",
+            "label": "Server-to-Server",
+            "type": "PRESET",
+            "parameterSetId": "server-to-server",
+            "visibilityCondition": "model.auth_type == 'server_to_server'"
+        },
+        {
+            "name": "dimension",
+            "label": "Break down by",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["auth_type", "server_to_server", "service_account", "user_account"]
+        },
+        {
+            "name": "dimension_manual",
+            "label": " ",
+            "description": "(id)",
+            "type": "STRING",
+            "visibilityCondition": "(model.dimension=='_dku_manual_select')"
+        },
+        {
+            "name": "keep_source_columns",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Keep source row columns",
+            "defaultValue": true
+        }
+    ]
+}
