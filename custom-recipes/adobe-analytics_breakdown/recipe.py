@@ -174,7 +174,7 @@ def main():
     keep_source_columns = config.get("keep_source_columns", True)
 
     logger.info(
-        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.21 with config={}".format(
+        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.22 with config={}".format(
             logger.filter_secrets(config)
         )
     )
