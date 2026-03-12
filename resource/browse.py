@@ -81,6 +81,15 @@ def do(payload, config, plugin_config, inputs):
 
         elif parameter_name == "dimension":
             report_id = get_value_from_ui(payload, "report_id")
+            if not report_id and len(inputs) > 0:
+                #  Called by the breakdown recipe
+                #  so need to find the report_id in the previous dataset
+                input = inputs[0]
+                import dataiku
+                dataset = dataiku.Dataset(input.get("fullName"))
+                dataframe = dataset.get_dataframe()
+                _, first_row = next(dataframe.iterrows())
+                report_id = first_row.get("report_id")
             logger.info("listing dimensions for rsid '{}'".format(report_id))
             if report_id:
                 for dimension in client.next_dimension(report_id):
