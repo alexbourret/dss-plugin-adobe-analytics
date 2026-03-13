@@ -1,5 +1,7 @@
 import logging
 import copy
+import inspect
+from collections import defaultdict
 
 MESSAGE_TEMPLATE = "{} - {}"
 
@@ -13,8 +15,17 @@ class SafeLogger(object):
             format='{} %(levelname)s - %(message)s'.format(self.name)
         )
         self.forbiden_keys = forbiden_keys
+        self._line_log_counts = defaultdict(int)
 
-    def info(self, message):
+    def info(self, message, max_per_line=None, then_short=None):
+        if max_per_line is not None:
+            caller = inspect.currentframe().f_back
+            line_key = (caller.f_code.co_filename, caller.f_lineno)
+            if self._line_log_counts[line_key] >= max_per_line:
+                if then_short is not None:
+                    self.logger.info(MESSAGE_TEMPLATE.format(self.name, message)[:then_short] + " ... {} chars".format(len(MESSAGE_TEMPLATE.format(self.name, message))))
+                return
+            self._line_log_counts[line_key] += 1
         self.logger.info(MESSAGE_TEMPLATE.format(self.name, message))
 
     def debug(self, message):
