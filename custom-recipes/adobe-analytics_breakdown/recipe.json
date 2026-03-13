@@ -28,6 +28,11 @@
     ],
     "params": [
         {
+            "name": "version_number",
+            "label": "Alpha.22",
+            "type": "SEPARATOR"
+        },
+        {
             "name": "auth_type",
             "label": "Type of authentication",
             "type": "SELECT",
