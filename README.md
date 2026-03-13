@@ -53,5 +53,8 @@ Use it when you need a second-level dimension breakdown from a first-level Adobe
 - Enable **Add a breakdown column** in that dataset configuration
 - Run the **Dimension Breakdown** recipe on this dataset
 - Select the target dimension to break down by
+- Repeat the operation for the next dimensions
+
+![](images/breakdown_dimensions_flow.jpg)
 
 The recipe reuses the report context (`report_id`, date range, metrics, source dimension and segment) from the input dataset and calls Adobe Analytics v2 breakdown queries for each input row.
