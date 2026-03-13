@@ -170,9 +170,10 @@ class AdobeClient():
                 "type": "segment",
                 "segmentId": segment
             })
-        logger.info("breakdown query={}".format(query))
+        logger.info("breakdown query={}".format(query), max_per_line=3, then_short=30)
         error_handling = ErrorHandler()
         for row in self.client.get_next_row("reports", data_path="rows", method="POST", json=query, error_handling=error_handling):
+            logger.info("breakdown row={}".format(row), max_per_line=3, then_short=30)
             yield row
 
     def list_report_suites(self):
