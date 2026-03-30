@@ -19,7 +19,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.20 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.22 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -67,6 +67,9 @@ class AdobeAnalyticsConnector(Connector):
         organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
+        self.shoud_add_total_row = config.get("shoud_add_total_row", False)
+        self.shoud_add_date_column = config.get("shoud_add_date_column", False)
+        self.should_provide_breakdown_data = config.get("should_provide_breakdown_data", False)
 
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
         self.client = AdobeClient(
@@ -94,12 +97,12 @@ class AdobeAnalyticsConnector(Connector):
         #     logger.error("Error {} while listing report metrics".format(error))
 
         # We now it works, data path fixed
-        logger.info("Testing pagination on calculated metrics for {}...".format(self.report_id))
-        try:
-            report_calculated_metrics = self.client.list_report_calculated_metrics(self.report_id)
-            logger.info("report_calculated_metrics={}".format(report_calculated_metrics))
-        except Exception as error:
-            logger.error("Error {} while listing report calculated metrics".format(error))
+        # logger.info("Testing pagination on calculated metrics for {}...".format(self.report_id))
+        # try:
+        #     report_calculated_metrics = self.client.list_report_calculated_metrics(self.report_id)
+        #     logger.info("report_calculated_metrics={}".format(report_calculated_metrics))
+        # except Exception as error:
+        #     logger.error("Error {} while listing report calculated metrics".format(error))
 
         # We now it works
         # logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
@@ -154,15 +157,35 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("generate_rows, records_limit={}".format(records_limit))
         limit = RecordsLimit(records_limit)
         logger.info("Before get_reports")
+        accumulator = Accumulator()
 
+        breakdown_data = {
+            "report_id": self.report_id,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "metrics": metrics_with_names(self.metrics, self.metrics_names),
+            "dimension_1": self.dimension,
+            "segment": self.segment
+        }
         for row in reorder_rows(self.client.next_report_row(
                 report_id=self.report_id, start_date=self.start_date, end_date=self.end_date,
                 metrics=self.metrics, dimension=self.dimension, segment=self.segment
             ), self.metrics_names
         ):
-            yield row
+            if self.shoud_add_total_row:
+                accumulator.add_row(row)
+            if self.shoud_add_date_column:
+                row["Date"] = self.start_date
+            if self.should_provide_breakdown_data:
+                row.update(breakdown_data)
+            yield order_output_row(row, self.metrics_names)
             if limit.is_reached():
                 return
+        if self.shoud_add_total_row:
+            total_row = accumulator.get_total()
+            total_row["item_id"] = None
+            total_row["item_name"] = "Total"
+            yield order_output_row(total_row, self.metrics_names)
 
     def get_writer(self, dataset_schema=None, dataset_partitioning=None,
                    partition_id=None, write_mode="OVERWRITE"):
@@ -219,3 +242,55 @@ def decode_metric_id(metric_dict):
         return json_metric.get("name"), json_metric.get("id")
     else:
         return json_metric, json_metric
+
+
+class Accumulator():
+    def __init__(self):
+        self.accumulator = {}
+
+    def add_row(self, row):
+        for key in row:
+            if key not in self.accumulator:
+                self.accumulator[key] = 0
+            try:
+                self.accumulator[key] += int(row.get(key))
+            except Exception:
+                pass
+
+    def get_total(self):
+        return self.accumulator
+
+
+def metrics_with_names(metrics, metrics_names):
+    named_metrics = []
+    for metric, metric_name in zip(metrics, metrics_names):
+        named_metric = metric
+        named_metric["name"] = metric_name
+        named_metrics.append(named_metric)
+    return named_metrics
+
+
+def order_output_row(row, metrics_names):
+    ordered_row = {}
+    preferred_columns = [
+        "item_id",
+        "dimension_1",
+        "item_name"
+    ]
+    preferred_columns.extend(metrics_names or [])
+    preferred_columns.extend([
+        "Date",
+        "report_id",
+        "start_date",
+        "end_date",
+        "metrics",
+        "segment"
+    ])
+    for column in preferred_columns:
+        if column in row and column not in ordered_row:
+            ordered_row[column] = row.get(column)
+
+    remaining_columns = sorted([column for column in row.keys() if column not in ordered_row])
+    for column in remaining_columns:
+        ordered_row[column] = row.get(column)
+    return ordered_row
