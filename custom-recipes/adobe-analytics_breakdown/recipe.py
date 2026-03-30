@@ -11,6 +11,7 @@ from adobe_client import AdobeClient
 from dss_selector_choices import get_value_from_ui
 from project_variable import ProjectVariable
 from safe_logger import SafeLogger
+from adobe_accumulator import Accumulator
 
 
 logger = SafeLogger("adobe-analytics breakdown recipe", ["bearer_token", "api_key", "client_secret"])
@@ -166,12 +167,27 @@ def reorder_output_columns(output_df, metric_names):
     return output_df.reindex(columns=final_columns)
 
 
+def filter_total_row(total_row, last_row, column_name):
+    filtered_total_row = total_row.copy()
+    filtered_total_row["item_id"] = None
+    filtered_total_row["item_name"] = column_name
+    for key in filtered_total_row:
+        if key.startswith("dimension_"):
+            filtered_total_row[key] = last_row.get(key)
+        if key in ["report_id", "start_date", "end_date", "source_item_id", "source_item_name"]:
+            filtered_total_row[key] = last_row.get(key)
+        if key in ["metrics", "segment", "Date"]:
+            filtered_total_row[key] = None
+    return filtered_total_row
+
+
 def main():
     config = get_recipe_config()
     input_name = get_input_names_for_role("input_dataset")[0]
     output_name = get_output_names_for_role("output_dataset")[0]
     breakdown_dimension = get_value_from_ui(config, "dimension")
     keep_source_columns = config.get("keep_source_columns", True)
+    should_add_total_row = config.get("should_add_total_row", False)
 
     logger.info(
         "Starting plugin adobe-analytics breakdown dimension recipe v0.0.22 with config={}".format(
@@ -183,7 +199,7 @@ def main():
         raise Exception("Please select a breakdown dimension")
 
     input_dataset = dataiku.Dataset(input_name)
-    input_df = input_dataset.get_dataframe()
+    input_df = input_dataset.get_dataframe(infer_with_pandas=False)
 
     if input_df.empty:
         logger.warning("Input dataset is empty, writing an empty output")
@@ -231,9 +247,15 @@ def main():
     )
 
     output_rows = []
+    if should_add_total_row:
+        grand_total = Accumulator()
     for _, source_row in input_df.iterrows():
         source_row_dict = source_row.to_dict()
         source_item_id = normalize_value(source_row_dict.get("item_id"))
+        if not source_item_id:
+            continue
+        if should_add_total_row:
+            input_row_total = Accumulator()
 
         for breakdown_row in reorder_rows(
             client.next_breakdown_row(
@@ -248,16 +270,30 @@ def main():
             ),
             metric_names
         ):
-            output_rows.append(
-                build_output_row(
-                    source_row=source_row_dict,
-                    breakdown_row=breakdown_row,
-                    dimension_map=dimension_map,
-                    next_dimension_column=next_dimension_column,
-                    breakdown_dimension=breakdown_dimension,
-                    keep_source_columns=keep_source_columns
-                )
+            output_row = build_output_row(
+                source_row=source_row_dict,
+                breakdown_row=breakdown_row,
+                dimension_map=dimension_map,
+                next_dimension_column=next_dimension_column,
+                breakdown_dimension=breakdown_dimension,
+                keep_source_columns=keep_source_columns
             )
+            output_rows.append(
+                output_row
+            )
+            if should_add_total_row:
+                input_row_total.add_row(output_row)
+                grand_total.add_row(output_row)
+        if should_add_total_row:
+            total_row = input_row_total.get_total()
+            total_row = filter_total_row(total_row, output_row, "Total")
+            output_rows.append(total_row)
+    if should_add_total_row:
+        total_row = grand_total.get_total()
+        total_row = filter_total_row(total_row, output_row, "Grand Total")
+        total_row["source_item_id"] = None
+        total_row["source_item_name"] = None
+        output_rows.append(total_row)
 
     output_dataset = dataiku.Dataset(output_name)
     if len(output_rows) == 0:
