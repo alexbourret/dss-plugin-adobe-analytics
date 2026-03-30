@@ -8,6 +8,7 @@ from records_limit import RecordsLimit
 from dss_selector_choices import get_value_from_ui
 from diagnostics import test_urls
 from project_variable import ProjectVariable
+from adobe_accumulator import Accumulator
 import json
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -67,8 +68,8 @@ class AdobeAnalyticsConnector(Connector):
         organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
-        self.shoud_add_total_row = config.get("shoud_add_total_row", False)
-        self.shoud_add_date_column = config.get("shoud_add_date_column", False)
+        self.should_add_total_row = config.get("should_add_total_row", False)
+        self.should_add_date_column = config.get("should_add_date_column", False)
         self.should_provide_breakdown_data = config.get("should_provide_breakdown_data", False)
 
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
@@ -172,16 +173,16 @@ class AdobeAnalyticsConnector(Connector):
                 metrics=self.metrics, dimension=self.dimension, segment=self.segment
             ), self.metrics_names
         ):
-            if self.shoud_add_total_row:
+            if self.should_add_total_row:
                 accumulator.add_row(row)
-            if self.shoud_add_date_column:
+            if self.should_add_date_column:
                 row["Date"] = self.start_date
             if self.should_provide_breakdown_data:
                 row.update(breakdown_data)
             yield order_output_row(row, self.metrics_names)
             if limit.is_reached():
                 return
-        if self.shoud_add_total_row:
+        if self.should_add_total_row:
             total_row = accumulator.get_total()
             total_row["item_id"] = None
             total_row["item_name"] = "Total"
@@ -242,23 +243,6 @@ def decode_metric_id(metric_dict):
         return json_metric.get("name"), json_metric.get("id")
     else:
         return json_metric, json_metric
-
-
-class Accumulator():
-    def __init__(self):
-        self.accumulator = {}
-
-    def add_row(self, row):
-        for key in row:
-            if key not in self.accumulator:
-                self.accumulator[key] = 0
-            try:
-                self.accumulator[key] += int(row.get(key))
-            except Exception:
-                pass
-
-    def get_total(self):
-        return self.accumulator
 
 
 def metrics_with_names(metrics, metrics_names):
