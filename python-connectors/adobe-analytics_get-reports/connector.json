@@ -185,14 +185,14 @@
             "visibilityCondition": "(model.segment=='_dku_manual_select')"
         },
         {
-            "name": "shoud_add_total_row",
+            "name": "should_add_total_row",
             "type": "BOOLEAN",
             "label": " ",
             "description": "Add a total row",
             "defaultValue": false
         },
         {
-            "name": "shoud_add_date_column",
+            "name": "should_add_date_column",
             "type": "BOOLEAN",
             "label": " ",
             "description": "Add a date column",
