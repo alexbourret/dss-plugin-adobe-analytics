@@ -2,6 +2,7 @@ from adobe_auth import AdobeAuth
 from adobe_pagination import AdobePagination
 from api_client import APIClient
 from safe_logger import SafeLogger
+import copy
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "client_secret"])
@@ -114,6 +115,65 @@ class AdobeClient():
         logger.info("query={}".format(query))
         error_handling = ErrorHandler()
         for row in self.client.get_next_row("reports", data_path="rows", method="POST", json=query, error_handling=error_handling):
+            yield row
+
+    def next_breakdown_row(
+            self,
+            report_id=None,
+            start_date=None,
+            end_date=None,
+            metrics=None,
+            source_dimension=None,
+            source_item_id=None,
+            breakdown_dimension=None,
+            segment=None
+    ):
+        logger.info(
+            "next_breakdown_row: report_id={}, source_dimension={}, source_item_id={}, breakdown_dimension={}".format(
+                report_id, source_dimension, source_item_id, breakdown_dimension
+            )
+        )
+        metrics = metrics or []
+        metric_filters = []
+        metric_entries = []
+        metric_counter = 0
+        for metric in metrics:
+            metric_copy = copy.deepcopy(metric)
+            metric_copy["filters"] = ["{}".format(metric_counter)]
+            metric_entries.append(metric_copy)
+            metric_filter = {
+                "id": "{}".format(metric_counter),
+                "type": "breakdown",
+                "dimension": source_dimension,
+                "itemId": "{}".format(source_item_id)
+            }
+            metric_filters.append(metric_filter)
+            metric_counter += 1
+        query = {
+            "rsid": report_id,
+            "globalFilters": [
+                {
+                    "type": "dateRange",
+                    "dateRange": "{}/{}".format(start_date, end_date)
+                }
+            ],
+            "metricContainer": {
+                "metrics": metric_entries,
+                "metricFilters": metric_filters
+            },
+            "dimension": breakdown_dimension,
+            "settings": {
+            }
+        }
+        if segment:
+            query["globalFilters"].append({
+                "type": "segment",
+                "segmentId": segment
+            })
+        logger.info("breakdown query={}".format(query), max_per_line=3, then_short=30)
+        error_handling = ErrorHandler()
+        for row in self.client.get_next_row("reports", data_path="rows", method="POST", json=query, error_handling=error_handling):
+            logger.info("breakdown row={}".format(row), max_per_line=3, then_short=30)
             yield row
 
     def list_report_suites(self):
