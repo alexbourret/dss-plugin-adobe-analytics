@@ -12,7 +12,7 @@
     "params": [
         {
             "name": "version_number",
-            "label": "Alpha.21",
+            "label": "Alpha.22",
             "type": "SEPARATOR"
         },
         {
@@ -197,6 +197,13 @@
             "label": " ",
             "description": "Add a date column",
             "defaultValue": false
-        }
+        },
+        {
+            "name": "should_provide_breakdown_data",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Add a breakdown column",
+            "defaultValue": false
+         }
     ]
 }
