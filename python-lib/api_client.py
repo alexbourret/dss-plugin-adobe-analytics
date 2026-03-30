@@ -41,7 +41,7 @@ class APIClient():
             full_url = url
         else:
             full_url = self.get_full_url(endpoint)
-        logger.info("posting url={}, params={}, json={}, data={}".format(full_url, params, json, data))
+        logger.info("posting url={}, params={}, json={}, data={}".format(full_url, params, json, data), max_per_line=10, then_short=30)
         json, params = reorganize_request_for_post_pagination(json, params)
         response = self.session.post(
             full_url,
@@ -185,11 +185,11 @@ def reorganize_request_for_post_pagination(json, params):
     # For post, move paging parameters from query string to json form
     json = {} or json
     params = {} or params
-    logger.warning("Reorganizing pagination from params {} to json {}".format(params, json))
+    logger.info("Reorganizing pagination from params {} to json {}".format(params, json), max_per_line=4, then_short=30)
     page = params.pop("page", None)
     if page is not None:
         settings = json.pop("settings", {})
         settings["page"] = page
         json["settings"] = settings
-    logger.warning("New params {} and json {}".format(params, json))
+    logger.info("New params {} and json {}".format(params, json), max_per_line=4, then_short=30)
     return json, params
