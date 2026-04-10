@@ -102,7 +102,11 @@ def do(payload, config, plugin_config, inputs):
                         label = "{} ({})".format(name, description)
                     else:
                         label = "{}".format(name)
-                    value = dimension.get("id")
+                    # value = dimension.get("id")
+                    value = {
+                        "name": dimension.get("name"),
+                        "id": dimension.get("id")
+                    }
                     if label and value:
                         choices.append_alphabetically(label, value)
             choices.append_manual_select()

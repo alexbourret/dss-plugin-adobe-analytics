@@ -12,7 +12,7 @@
     "params": [
         {
             "name": "version_number",
-            "label": "Alpha.23",
+            "label": "Alpha.24",
             "type": "SEPARATOR"
         },
         {
@@ -189,13 +189,6 @@
             "type": "BOOLEAN",
             "label": " ",
             "description": "Add a total row",
-            "defaultValue": false
-        },
-        {
-            "name": "should_add_date_column",
-            "type": "BOOLEAN",
-            "label": " ",
-            "description": "Add a date column",
             "defaultValue": false
         },
         {

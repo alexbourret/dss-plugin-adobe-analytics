@@ -106,7 +106,6 @@ def build_output_row(
     if keep_source_columns:
         for key, value in source_row.items():
             output_row[key] = normalize_value(value)
-
     for dimension_index in sorted(dimension_map.keys()):
         output_row["dimension_{}".format(dimension_index)] = dimension_map.get(dimension_index)
     output_row[next_dimension_column] = breakdown_dimension
@@ -153,8 +152,7 @@ def reorder_output_columns(output_df, metric_names):
         "start_date",
         "end_date",
         "metrics",
-        "segment",
-        "Date"
+        "segment"
     ])
 
     final_columns = []
@@ -167,6 +165,37 @@ def reorder_output_columns(output_df, metric_names):
     return output_df.reindex(columns=final_columns)
 
 
+def move_columns(dataframe, cut_after_column_named, insert_before_column_named):
+    """
+    Return a reordered DataFrame where all columns after `cut_after_column_named`
+    (excluding `cut_after_column_named`) are moved before `insert_before_column_named`.
+
+    Constraint: `insert_before_column_named` must appear before (or be the same as) `cut_after_column_named`
+    in the current column order.
+    """
+    columns = list(dataframe.columns)
+
+    if cut_after_column_named not in columns or insert_before_column_named not in columns:
+        missing = [column for column in (cut_after_column_named, insert_before_column_named) if column not in columns]
+        raise ValueError("Column(s) not found: {}".format(missing))
+
+    index_future_last_column = columns.index(cut_after_column_named)
+    index_insertion_column = columns.index(insert_before_column_named)
+
+    if index_insertion_column > index_future_last_column:
+        raise ValueError(
+            "`second_col` must be before (or equal to) `first_col` for this operation."
+        )
+
+    to_move = columns[index_future_last_column + 1:]  # everything after first_col
+    kept = columns[: index_future_last_column + 1]     # up to and including first_col
+
+    insert_at = kept.index(insert_before_column_named)
+    new_columns = kept[:insert_at] + to_move + kept[insert_at:]
+
+    return dataframe.loc[:, new_columns]
+
+
 def filter_total_row(total_row, last_row, column_name):
     filtered_total_row = total_row.copy()
     filtered_total_row["item_id"] = None
@@ -176,21 +205,34 @@ def filter_total_row(total_row, last_row, column_name):
             filtered_total_row[key] = last_row.get(key)
         if key in ["report_id", "start_date", "end_date", "source_item_id", "source_item_name"]:
             filtered_total_row[key] = last_row.get(key)
-        if key in ["metrics", "segment", "Date"]:
+        if key in ["metrics", "segment"]:
             filtered_total_row[key] = None
     return filtered_total_row
+
+
+def decode_metric_id(metric_dict):
+    json_metric = metric_dict
+    try:
+        json_metric = json.loads(metric_dict)
+    except Exception:
+        pass
+
+    if isinstance(json_metric, dict):
+        return json_metric.get("name"), json_metric.get("id")
+    else:
+        return json_metric, json_metric
 
 
 def main():
     config = get_recipe_config()
     input_name = get_input_names_for_role("input_dataset")[0]
     output_name = get_output_names_for_role("output_dataset")[0]
-    breakdown_dimension = get_value_from_ui(config, "dimension")
+    breakdown_dimension_name, breakdown_dimension = decode_metric_id(get_value_from_ui(config, "dimension"))
     keep_source_columns = config.get("keep_source_columns", True)
     should_add_total_row = config.get("should_add_total_row", False)
 
     logger.info(
-        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.23 with config={}".format(
+        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.24 with config={}".format(
             logger.filter_secrets(config)
         )
     )
@@ -268,7 +310,8 @@ def main():
                 breakdown_dimension=breakdown_dimension,
                 segment=segment
             ),
-            metric_names
+            metric_names,
+            item_name=breakdown_dimension_name
         ):
             output_row = build_output_row(
                 source_row=source_row_dict,
@@ -278,6 +321,8 @@ def main():
                 breakdown_dimension=breakdown_dimension,
                 keep_source_columns=keep_source_columns
             )
+            output_row.pop("item_name", None)
+            output_row.pop("source_item_name", None)
             output_rows.append(
                 output_row
             )
@@ -303,6 +348,10 @@ def main():
 
     output_df = pd.DataFrame(output_rows)
     output_df = reorder_output_columns(output_df, metric_names)
+    try:
+        output_df = move_columns(output_df, "segment", "source_item_id")
+    except Exception:
+        logger.info("Cannot reorder columns")
     output_dataset.write_with_schema(output_df)
 
 
