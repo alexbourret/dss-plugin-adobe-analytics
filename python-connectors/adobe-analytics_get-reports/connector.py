@@ -174,7 +174,7 @@ class AdobeAnalyticsConnector(Connector):
         for row in reorder_rows(self.client.next_report_row(
                 report_id=self.report_id, start_date=self.start_date, end_date=self.end_date,
                 metrics=self.metrics, dimension=self.dimension, segment=self.segment
-            ), self.metrics_names, item_name=self.dimension_name
+            ), self.metrics_names, item_name=self.dimension_name, item_id_column_name="item_id_1"
         ):
             if self.should_add_total_row:
                 accumulator.add_row(row)
@@ -186,7 +186,7 @@ class AdobeAnalyticsConnector(Connector):
                 return
         if self.should_add_total_row:
             total_row = accumulator.get_total()
-            total_row["item_id"] = None
+            total_row["item_id_1"] = None
             total_row["item_name"] = "Total"
             yield order_output_row(total_row, self.metrics_names, item_name=self.dimension_name)
 
@@ -261,7 +261,7 @@ def order_output_row(row, metrics_names, item_name=None):
     item_name = item_name or "item_name"
     ordered_row = {}
     preferred_columns = [
-        "item_id",
+        "item_id_1",
         "dimension_1",
         item_name
     ]
