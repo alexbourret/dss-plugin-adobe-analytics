@@ -12,6 +12,7 @@ from dss_selector_choices import get_value_from_ui
 from project_variable import ProjectVariable
 from safe_logger import SafeLogger
 from adobe_accumulator import Accumulator
+from diagnostics import test_urls
 
 
 logger = SafeLogger("adobe-analytics breakdown recipe", ["bearer_token", "api_key", "client_secret"])
@@ -389,4 +390,5 @@ def main():
     output_dataset.write_with_schema(output_df)
 
 
+test_urls()
 main()
