@@ -16,7 +16,8 @@ from adobe_accumulator import Accumulator
 
 logger = SafeLogger("adobe-analytics breakdown recipe", ["bearer_token", "api_key", "client_secret"])
 mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
-dimension_pattern = re.compile(r"^dimension_(\d+)$")
+DIMENSION_PATTERN = re.compile(r"^dimension_(\d+)$")
+ITEM_ID_PATTERN = re.compile(r"^item_id_(\d+)$")
 
 
 def normalize_value(value):
@@ -85,13 +86,25 @@ def decode_metrics(value):
 def extract_dimension_map(row):
     dimensions = {}
     for key, value in row.items():
-        match = dimension_pattern.match(key)
+        match = DIMENSION_PATTERN.match(key)
         if match:
             dimensions[int(match.group(1))] = normalize_value(value)
     if len(dimensions) == 0 and "dimension" in row:
         # Backward compatibility with datasets created before dimension_1 naming.
         dimensions[1] = normalize_value(row.get("dimension"))
     return dimensions
+
+
+def extract_item_id_map(row):
+    item_ids = {}
+    for key, value in row.items():
+        match = ITEM_ID_PATTERN.match(key)
+        if match:
+            item_ids[int(match.group(1))] = normalize_value(value)
+    if len(item_ids) == 0 and "dimension" in row:
+        # Backward compatibility with datasets created before dimension_1 naming.
+        item_ids[1] = normalize_value(row.get("item_id"))
+    return item_ids
 
 
 def build_output_row(
@@ -126,7 +139,7 @@ def build_output_row(
 def sort_dimension_columns(columns):
     dimension_columns = []
     for column in columns:
-        match = dimension_pattern.match(column)
+        match = DIMENSION_PATTERN.match(column)
         if match:
             dimension_columns.append((int(match.group(1)), column))
     dimension_columns.sort(key=lambda item: item[0])
