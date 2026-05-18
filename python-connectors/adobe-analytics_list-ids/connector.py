@@ -5,6 +5,7 @@ from safe_logger import SafeLogger
 from adobe_analytics_common import (
     get_connection_from_config
 )
+from dss_selector_choices import get_value_from_ui
 from plugin_details import get_initialization_string
 from project_variable import ProjectVariable
 
@@ -22,9 +23,7 @@ class ListIDsConnector(Connector):
         ))
         mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
         self.element_to_list = self.config.get("element_to_list", "reports")
-        self.report_id_manual = self.config.get("report_id_manual", None)
-        if self.report_id_manual == '':
-            self.report_id_manual = None
+        self.report_id = get_value_from_ui(config, "report_id")
         auth_type = config.get("auth_type", "user_account")
         logger.info("auth_type={}".format(auth_type))
         user_account = config.get(auth_type, {})
@@ -52,13 +51,13 @@ class ListIDsConnector(Connector):
         limit = RecordsLimit(records_limit)
         next = self.client.next_report_suites()
         if self.element_to_list == "metrics":
-            next = self.client.next_metric(self.report_id_manual)
+            next = self.client.next_metric(self.report_id)
         elif self.element_to_list == "calculated_metrics":
-            next = self.client.next_calculated_metric(self.report_id_manual)
+            next = self.client.next_calculated_metric(self.report_id)
         elif self.element_to_list == "dimensions":
-            next = self.client.next_dimension(self.report_id_manual)
+            next = self.client.next_dimension(self.report_id)
         elif self.element_to_list == "segments":
-            next = self.client.next_segment(self.report_id_manual)
+            next = self.client.next_segment(self.report_id)
         for item in next:
             yield item
             if limit.is_reached():

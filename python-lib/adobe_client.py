@@ -123,32 +123,37 @@ class AdobeClient():
             start_date=None,
             end_date=None,
             metrics=None,
-            source_dimension=None,
-            source_item_id=None,
+            source_dimensions=None,
+            source_items_ids=None,
             breakdown_dimension=None,
             segment=None
     ):
         logger.info(
             "next_breakdown_row: report_id={}, source_dimension={}, source_item_id={}, breakdown_dimension={}".format(
-                report_id, source_dimension, source_item_id, breakdown_dimension
+                report_id, source_dimensions, source_items_ids, breakdown_dimension
             )
         )
         metrics = metrics or []
         metric_filters = []
         metric_entries = []
         metric_counter = 0
+        number_of_dimensions = len(source_dimensions)
         for metric in metrics:
             metric_copy = copy.deepcopy(metric)
-            metric_copy["filters"] = ["{}".format(metric_counter)]
+            metric_copy["filters"] = generate_filters_refs(number_of_dimensions, metric_counter)
             metric_entries.append(metric_copy)
-            metric_filter = {
-                "id": "{}".format(metric_counter),
-                "type": "breakdown",
-                "dimension": source_dimension,
-                "itemId": "{}".format(source_item_id)
-            }
-            metric_filters.append(metric_filter)
             metric_counter += 1
+        metric_counter = 0
+        for source_dimension, source_item_id in zip(source_dimensions, source_items_ids):
+            for metric in metrics:
+                metric_filter = {
+                    "id": "{}".format(metric_counter),
+                    "type": "breakdown",
+                    "dimension": source_dimensions.get(source_dimension),
+                    "itemId": "{}".format(source_items_ids.get(source_item_id))
+                }
+                metric_filters.append(metric_filter)
+                metric_counter += 1
         query = {
             "rsid": report_id,
             "globalFilters": [
@@ -404,3 +409,14 @@ class ErrorHandler():
                 error_description = colum_error.get("errorDescription")
                 errors.append("{}: {}".format(error_code, error_description))
             raise Exception("Error: {}".format(", ".join(errors)))
+
+
+def generate_filters_refs(number_of_dimensions, metric_counter):
+    # See "filters" key request body - https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/reports/breakdowns#third-level-breakdown
+    # 1, X -> ["0"], ["1"]
+    # 2, X -> ["0", "2"], ["1", "3"]
+    output = []
+    offset = metric_counter
+    for dimension_number in range(0, number_of_dimensions):
+        output.append("{}".format(dimension_number * number_of_dimensions + offset))
+    return output

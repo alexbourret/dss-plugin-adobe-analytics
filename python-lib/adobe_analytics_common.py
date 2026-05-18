@@ -19,14 +19,16 @@ def reorder_response(json_response, metrics_names):
     return output_rows
 
 
-def reorder_rows(row_getter, metrics_names):
+def reorder_rows(row_getter, metrics_names, item_name=None, item_id_column_name=None):
+    item_name = item_name or "item_name"
+    item_id_column_name = item_id_column_name or "item_id"
     output_rows = []
     for item in row_getter:
         if not item:
             continue
         output_row = {}
-        output_row['item_id'] = item.get("itemId")
-        output_row['item_name'] = item.get("value")
+        output_row[item_id_column_name] = item.get("itemId")
+        output_row[item_name] = item.get("value")
         item_data = item.get("data", [])
         for metric_name, metric_value in zip(metrics_names, item_data):
             output_row[metric_name] = metric_value
