@@ -103,10 +103,11 @@ class AdobeClient():
             "metricContainer": {
                 "metrics": metrics
             },
-            "dimension": dimension,
             "settings": {
             }
         }
+        if dimension:
+            query["dimension"] = dimension
         if segment:
             query["globalFilters"].append({
                 "type": "segment",
