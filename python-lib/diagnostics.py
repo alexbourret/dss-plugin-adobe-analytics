@@ -41,6 +41,7 @@ def test_urls():
         {"method": "GET", "url": "https://ims-na1.adobelogin.com/ims/.well-known/openid-configuration"},
         {"method": "POST", "url": "https://ims-na1.adobelogin.com/ims/token/v3"},
         {"method": "GET", "url": "https://analytics.adobe.io/api/"},
+        {"method": "GET", "url": "https://cja.adobe.io/"},
         {"method": "GET", "url": "https://api.omniture.com/admin/1.4/rest/"},
         {"method": "POST", "url": "https://api.omniture.com/admin/1.4/rest/"}
     ]

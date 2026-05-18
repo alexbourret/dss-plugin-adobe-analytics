@@ -12,11 +12,13 @@ from dss_selector_choices import get_value_from_ui
 from project_variable import ProjectVariable
 from safe_logger import SafeLogger
 from adobe_accumulator import Accumulator
+from diagnostics import test_urls
 
 
 logger = SafeLogger("adobe-analytics breakdown recipe", ["bearer_token", "api_key", "client_secret"])
 mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
-dimension_pattern = re.compile(r"^dimension_(\d+)$")
+DIMENSION_PATTERN = re.compile(r"^dimension_(\d+)$")
+ITEM_ID_PATTERN = re.compile(r"^item_id_(\d+)$")
 
 
 def normalize_value(value):
@@ -85,7 +87,7 @@ def decode_metrics(value):
 def extract_dimension_map(row):
     dimensions = {}
     for key, value in row.items():
-        match = dimension_pattern.match(key)
+        match = DIMENSION_PATTERN.match(key)
         if match:
             dimensions[int(match.group(1))] = normalize_value(value)
     if len(dimensions) == 0 and "dimension" in row:
@@ -94,11 +96,24 @@ def extract_dimension_map(row):
     return dimensions
 
 
+def extract_item_id_map(row):
+    item_ids = {}
+    for key, value in row.items():
+        match = ITEM_ID_PATTERN.match(key)
+        if match:
+            item_ids[int(match.group(1))] = normalize_value(value)
+    if len(item_ids) == 0 and "dimension" in row:
+        # Backward compatibility with datasets created before dimension_1 naming.
+        item_ids[1] = normalize_value(row.get("item_id"))
+    return item_ids
+
+
 def build_output_row(
         source_row,
         breakdown_row,
         dimension_map,
         next_dimension_column,
+        next_item_id_column,
         breakdown_dimension,
         keep_source_columns
 ):
@@ -109,8 +124,7 @@ def build_output_row(
     for dimension_index in sorted(dimension_map.keys()):
         output_row["dimension_{}".format(dimension_index)] = dimension_map.get(dimension_index)
     output_row[next_dimension_column] = breakdown_dimension
-
-    output_row["item_id"] = breakdown_row.get("item_id")
+    output_row[next_item_id_column] = breakdown_row.get("item_id")
     output_row["item_name"] = breakdown_row.get("item_name")
     output_row["source_item_id"] = normalize_value(source_row.get("item_id"))
     output_row["source_item_name"] = normalize_value(source_row.get("item_name"))
@@ -126,7 +140,17 @@ def build_output_row(
 def sort_dimension_columns(columns):
     dimension_columns = []
     for column in columns:
-        match = dimension_pattern.match(column)
+        match = DIMENSION_PATTERN.match(column)
+        if match:
+            dimension_columns.append((int(match.group(1)), column))
+    dimension_columns.sort(key=lambda item: item[0])
+    return [column for _, column in dimension_columns]
+
+
+def sort_item_id_columns(columns):
+    dimension_columns = []
+    for column in columns:
+        match = ITEM_ID_PATTERN.match(column)
         if match:
             dimension_columns.append((int(match.group(1)), column))
     dimension_columns.sort(key=lambda item: item[0])
@@ -232,7 +256,7 @@ def main():
     should_add_total_row = config.get("should_add_total_row", False)
 
     logger.info(
-        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.24 with config={}".format(
+        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.25 with config={}".format(
             logger.filter_secrets(config)
         )
     )
@@ -253,6 +277,7 @@ def main():
     start_date = normalize_value(first_row.get("start_date"))
     end_date = normalize_value(first_row.get("end_date"))
     dimension_map = extract_dimension_map(first_row)
+    item_id_map = extract_item_id_map(first_row)
     segment = normalize_value(first_row.get("segment"))
 
     if not report_id or not start_date or not end_date:
@@ -266,9 +291,16 @@ def main():
             "Input dataset is missing dimension metadata. "
             "Use an Adobe dataset with dimension_1 (or legacy dimension) column."
         )
+    if len(item_id_map) == 0:
+        raise Exception(
+            "Input dataset is missing dimension metadata. "
+            "Use an Adobe dataset with item_id_1 (or legacy item_id) column."
+        )
+
     max_dimension_index = max(dimension_map.keys())
     source_dimension = dimension_map.get(max_dimension_index)
     next_dimension_column = "dimension_{}".format(max_dimension_index + 1)
+    next_item_id_column = "item_id_{}".format(max_dimension_index + 1)
     if not source_dimension:
         raise Exception(
             "Could not resolve source dimension from column dimension_{}.".format(max_dimension_index)
@@ -293,8 +325,10 @@ def main():
         grand_total = Accumulator()
     for _, source_row in input_df.iterrows():
         source_row_dict = source_row.to_dict()
-        source_item_id = normalize_value(source_row_dict.get("item_id"))
-        if not source_item_id:
+        item_id_map = extract_item_id_map(source_row)
+        dimension_map = extract_dimension_map(source_row) # that could change for any row, right ?
+        if not item_id_map:
+            # check that this means something
             continue
         if should_add_total_row:
             input_row_total = Accumulator()
@@ -305,8 +339,8 @@ def main():
                 start_date=start_date,
                 end_date=end_date,
                 metrics=metrics,
-                source_dimension=source_dimension,
-                source_item_id=source_item_id,
+                source_dimensions=dimension_map,
+                source_items_ids=item_id_map,
                 breakdown_dimension=breakdown_dimension,
                 segment=segment
             ),
@@ -318,6 +352,7 @@ def main():
                 breakdown_row=breakdown_row,
                 dimension_map=dimension_map,
                 next_dimension_column=next_dimension_column,
+                next_item_id_column=next_item_id_column,
                 breakdown_dimension=breakdown_dimension,
                 keep_source_columns=keep_source_columns
             )
@@ -355,4 +390,5 @@ def main():
     output_dataset.write_with_schema(output_df)
 
 
+test_urls()
 main()
