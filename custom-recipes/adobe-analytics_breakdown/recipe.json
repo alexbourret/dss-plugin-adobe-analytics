@@ -29,7 +29,7 @@
     "params": [
         {
             "name": "version_number",
-            "label": "Alpha.22",
+            "label": "Alpha.25",
             "type": "SEPARATOR"
         },
         {
@@ -92,6 +92,13 @@
             "label": " ",
             "description": "Keep source row columns",
             "defaultValue": true
+        },
+        {
+            "name": "should_add_total_row",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Add a total row",
+            "defaultValue": false
         }
     ]
 }

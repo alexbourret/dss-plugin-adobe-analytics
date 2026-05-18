@@ -8,6 +8,7 @@ from records_limit import RecordsLimit
 from dss_selector_choices import get_value_from_ui
 from diagnostics import test_urls
 from project_variable import ProjectVariable
+from adobe_accumulator import Accumulator
 import json
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -19,7 +20,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.22 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.25 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -58,7 +59,11 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("metrics={}".format(self.metrics))
         logger.info("metrics_names={}".format(self.metrics_names))
 
-        self.dimension = get_value_from_ui(self.config, "dimension")
+        # self.dimension = get_value_from_ui(self.config, "dimension")
+        self.dimension_name, self.dimension = decode_metric_id(
+            get_value_from_ui(self.config, "dimension")
+        )
+
         self.segment = get_value_from_ui(self.config, "segment")
         auth_type = config.get("auth_type", "user_account")
         logger.info("auth_type={}".format(auth_type))
@@ -67,8 +72,7 @@ class AdobeAnalyticsConnector(Connector):
         organization_id = user_account.get("organization_id")
         company_id = user_account.get("company_id")
         api_key = user_account.get("api_key")
-        self.shoud_add_total_row = config.get("shoud_add_total_row", False)
-        self.shoud_add_date_column = config.get("shoud_add_date_column", False)
+        self.should_add_total_row = config.get("should_add_total_row", False)
         self.should_provide_breakdown_data = config.get("should_provide_breakdown_data", False)
 
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
@@ -170,22 +174,21 @@ class AdobeAnalyticsConnector(Connector):
         for row in reorder_rows(self.client.next_report_row(
                 report_id=self.report_id, start_date=self.start_date, end_date=self.end_date,
                 metrics=self.metrics, dimension=self.dimension, segment=self.segment
-            ), self.metrics_names
+            ), self.metrics_names, item_name=self.dimension_name, item_id_column_name="item_id_1"
         ):
-            if self.shoud_add_total_row:
+            if self.should_add_total_row:
                 accumulator.add_row(row)
-            if self.shoud_add_date_column:
-                row["Date"] = self.start_date
             if self.should_provide_breakdown_data:
                 row.update(breakdown_data)
-            yield order_output_row(row, self.metrics_names)
+            row.pop("item_name", None)
+            yield order_output_row(row, self.metrics_names, item_name=self.dimension_name)
             if limit.is_reached():
                 return
-        if self.shoud_add_total_row:
+        if self.should_add_total_row:
             total_row = accumulator.get_total()
-            total_row["item_id"] = None
+            total_row["item_id_1"] = None
             total_row["item_name"] = "Total"
-            yield order_output_row(total_row, self.metrics_names)
+            yield order_output_row(total_row, self.metrics_names, item_name=self.dimension_name)
 
     def get_writer(self, dataset_schema=None, dataset_partitioning=None,
                    partition_id=None, write_mode="OVERWRITE"):
@@ -244,23 +247,6 @@ def decode_metric_id(metric_dict):
         return json_metric, json_metric
 
 
-class Accumulator():
-    def __init__(self):
-        self.accumulator = {}
-
-    def add_row(self, row):
-        for key in row:
-            if key not in self.accumulator:
-                self.accumulator[key] = 0
-            try:
-                self.accumulator[key] += int(row.get(key))
-            except Exception:
-                pass
-
-    def get_total(self):
-        return self.accumulator
-
-
 def metrics_with_names(metrics, metrics_names):
     named_metrics = []
     for metric, metric_name in zip(metrics, metrics_names):
@@ -270,16 +256,17 @@ def metrics_with_names(metrics, metrics_names):
     return named_metrics
 
 
-def order_output_row(row, metrics_names):
+def order_output_row(row, metrics_names, item_name=None):
+    # metrics_names=['Page Views', 'Unique Visitors']
+    item_name = item_name or "item_name"
     ordered_row = {}
     preferred_columns = [
-        "item_id",
+        "item_id_1",
         "dimension_1",
-        "item_name"
+        item_name
     ]
     preferred_columns.extend(metrics_names or [])
     preferred_columns.extend([
-        "Date",
         "report_id",
         "start_date",
         "end_date",

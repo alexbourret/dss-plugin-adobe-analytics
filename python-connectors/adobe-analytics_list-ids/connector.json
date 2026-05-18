@@ -7,6 +7,7 @@
     "readable": true,
     "writable": false,
     "supportAppend": false,
+    "paramsPythonSetup": "browse.py",
     "params": [
         {
             "name": "auth_type",
@@ -76,11 +77,18 @@
             ]
         },
         {
+            "name": "report_id",
+            "label": "Report Suite ID",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["auth_type", "server_to_server", "service_account", "user_account"]
+        },
+        {
             "name": "report_id_manual",
             "label": "Report ID",
-            "description": "Optional",
+            "description": "",
             "type": "STRING",
-            "visibilityCondition": "['metrics','calculated_metrics','dimensions','segments'].indexOf(model.element_to_list) >= 0"
+            "visibilityCondition": "(model.report_id=='_dku_manual_select') && ['metrics','calculated_metrics','dimensions','segments'].indexOf(model.element_to_list) >= 0"
         }
     ]
 }
