@@ -256,7 +256,7 @@ def main():
     should_add_total_row = config.get("should_add_total_row", False)
 
     logger.info(
-        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.26 with config={}".format(
+        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.27 with config={}".format(
             logger.filter_secrets(config)
         )
     )
