@@ -102,6 +102,19 @@ class APIClient():
                 items_retrieved += 1
                 yield row
 
+    def get_response(self, endpoint, url=None, method=None, data_path=None, params=None, json=None, data=None, error_handling=None):
+        method = method or "GET"
+        params = params or {}
+        response = None
+        if method == "GET":
+            logger.info("GET endpoint={}, url={}, params={}, json={}, data={}")
+            response = self.get(endpoint, url=url, params=params, json=json, data=data, raw=True)
+        else:
+            logger.info("POST endpoint={}, url={}, params={}, json={}, data={}")
+            response = self.post(endpoint, url=url, params=params, json=json, data=data, raw=True)
+        json_response = response.json()
+        yield {"api_response": json_response}
+
     def should_try_again(self, response):
         if response is not None:
             self.number_of_retries = None

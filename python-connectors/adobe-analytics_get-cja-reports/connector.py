@@ -26,6 +26,7 @@ class AdobeCJAConnector(Connector):
         )
         if mock:
             logger.warning("Mock mode ! Get mock server started")
+        self.should_dump_server_result = config.get("should_dump_server_result", False)
         logger.info("Running diagnostics")
         # logger.info("External IP={}".format(get_kernel_external_ip()))
         # logger.info("Internal IP={}".format(get_kernel_internal_ip()))
@@ -115,22 +116,32 @@ class AdobeCJAConnector(Connector):
         logger.info("Before get_reports")
         accumulator = Accumulator()
 
-        for row in reorder_rows(self.client.next_report_row(
+        if self.should_dump_server_result:
+            # Dumping result for analysis in case of multiple dimensions
+            # remove this when issue fixed
+            response = self.client.next_report_row(
                 report_id=self.report_id, start_date=self.start_date, end_date=self.end_date,
-                metrics=self.metrics, dimensions=self.dimensions, segment=self.segment
-            ), self.metrics_names  #, item_names=self.dimension_names
-        ):
+                metrics=self.metrics, dimensions=self.dimensions, segment=self.segment, dump_response=True
+            )
+            response = next(next(response))
+            yield response
+        else:
+            for row in reorder_rows(self.client.next_report_row(
+                    report_id=self.report_id, start_date=self.start_date, end_date=self.end_date,
+                    metrics=self.metrics, dimensions=self.dimensions, segment=self.segment
+                ), self.metrics_names  #, item_names=self.dimension_names
+            ):
+                if self.should_add_total_row:
+                    accumulator.add_row(row)
+                # row.pop("item_name", None)
+                yield order_output_row(row, self.metrics_names)  #, item_name=self.dimension_name)
+                if limit.is_reached():
+                    return
             if self.should_add_total_row:
-                accumulator.add_row(row)
-            row.pop("item_name", None)
-            yield order_output_row(row, self.metrics_names)  #, item_name=self.dimension_name)
-            if limit.is_reached():
-                return
-        if self.should_add_total_row:
-            total_row = accumulator.get_total()
-            total_row["item_id"] = None
-            total_row["item_name"] = "Total"
-            yield order_output_row(total_row, self.metrics_names)  #, item_name=self.dimension_name)
+                total_row = accumulator.get_total()
+                total_row["item_id"] = None
+                total_row["item_name"] = "Total"
+                yield order_output_row(total_row, self.metrics_names)  #, item_name=self.dimension_name)
 
     def get_writer(self, dataset_schema=None, dataset_partitioning=None,
                    partition_id=None, write_mode="OVERWRITE"):

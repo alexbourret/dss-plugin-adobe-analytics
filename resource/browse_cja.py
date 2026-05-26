@@ -47,9 +47,9 @@ def do(payload, config, plugin_config, inputs):
             mock=mock
         )
         if parameter_name == "report_id":
-            for report_suite in client.next_report_suites():
+            for report_suite in client.next_data_views():
                 label = report_suite.get("name")
-                value = report_suite.get("rsid")
+                value = report_suite.get("id")
                 if label and value:
                     choices.append_alphabetically(label, value)
             choices.append_manual_select()

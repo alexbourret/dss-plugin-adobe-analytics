@@ -27,7 +27,8 @@ def reorder_rows(row_getter, metrics_names, item_name=None, item_id_column_name=
         if not item:
             continue
         output_row = {}
-        output_row[item_id_column_name] = item.get("itemId")
+        if item_id_column_name:
+            output_row[item_id_column_name] = item.get("itemId")
         output_row[item_name] = item.get("value")
         item_data = item.get("data", [])
         for metric_name, metric_value in zip(metrics_names, item_data):

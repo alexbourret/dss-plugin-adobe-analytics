@@ -197,6 +197,13 @@
             "label": " ",
             "description": "Add a breakdown column",
             "defaultValue": false
-         }
+        },
+        {
+            "name": "should_dump_server_result",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Dump server result",
+            "defaultValue": false
+        }
     ]
 }
