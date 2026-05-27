@@ -138,6 +138,10 @@
                 {
                     "value": "last_quarter",
                     "label": "Last quarter"
+                },
+                {
+                    "value": "last_year",
+                    "label": "Last year"
                 }
             ]
         },

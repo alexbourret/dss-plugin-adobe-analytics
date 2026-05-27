@@ -142,4 +142,9 @@ def get_date_range(config):
             end_date_dt = first_day_after_quarter - timedelta(days=1)
             end_date_dt = end_date_dt.replace(hour=23, minute=59, second=0, microsecond=0)
         end_date = end_date_dt.strftime("%Y-%m-%dT%H:%M:%S.000")
+    elif date_range == "last_year":
+        today = datetime.now()
+        last_year = today.year - 1
+        start_date = datetime(last_year, 1, 1, 0, 0, 0).strftime("%Y-%m-%dT%H:%M:%S.000")
+        end_date = datetime(last_year, 12, 31, 23, 59, 0).strftime("%Y-%m-%dT%H:%M:%S.000")
     return start_date, end_date
