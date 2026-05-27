@@ -89,13 +89,20 @@ def get_date_range(config):
         end_day = today - timedelta(days=1)
         start_date = start_day.replace(hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%S.000")
         end_date = end_day.replace(hour=23, minute=59, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%S.000")
-    elif date_range == "last_week":
+    elif date_range == "last_work_week":
         today = datetime.now()
         current_monday = today - timedelta(days=today.weekday())
         last_monday = current_monday - timedelta(days=7)
         last_friday = last_monday + timedelta(days=4)
         start_date = last_monday.replace(hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%S.000")
         end_date = last_friday.replace(hour=23, minute=59, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%S.000")
+    elif date_range == "last_week":
+        today = datetime.now()
+        current_monday = today - timedelta(days=today.weekday())
+        last_monday = current_monday - timedelta(days=7)
+        last_sunday = last_monday + timedelta(days=6)
+        start_date = last_monday.replace(hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%S.000")
+        end_date = last_sunday.replace(hour=23, minute=59, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%S.000")
     elif date_range == "last_30_days":
         today = datetime.now()
         start_day = today - timedelta(days=30)
