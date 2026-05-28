@@ -70,83 +70,94 @@
             "visibilityCondition": "(model.report_id=='_dku_manual_select')"
         },
         {
-            "name": "endpoint",
-            "label": " ",
+            "name": "date_range",
+            "label": "Date range",
             "type": "SELECT",
             "selectChoices": [
                 {
-                    "value": "reports",
-                    "label": "V2.0 Reporting"
+                    "value": null,
+                    "label": "Custom"
                 },
                 {
-                    "value": "reports/realtime",
-                    "label": "Realtime report"
+                    "value": "manual",
+                    "label": "Custom (Manual)"
                 },
                 {
-                    "value": "v1.4",
-                    "label": "V1.4 Reporting"
+                    "value": "today",
+                    "label": "Today"
+                },
+                {
+                    "value": "yesterday",
+                    "label": "Yesterday"
+                },
+                {
+                    "value": "last_7_days",
+                    "label": "Last 7 days"
+                },
+                {
+                    "value": "last_14_days",
+                    "label": "Last 14 days"
+                },
+                {
+                    "value": "last_week",
+                    "label": "Last Week"
+                },
+                {
+                    "value": "last_30_days",
+                    "label": "Last 30 days"
+                },
+                {
+                    "value": "last_60_days",
+                    "label": "Last 60 days"
+                },
+                {
+                    "value": "last_month",
+                    "label": "Last month"
+                },
+                {
+                    "value": "last_quarter",
+                    "label": "Last quarter"
+                },
+                {
+                    "value": "last_year",
+                    "label": "Last year"
                 }
-            ],
-            "defaultValue": "reports",
-            "visibilityCondition": "false"
-        },
-        {
-            "name": "is_date_entered_manually",
-            "type": "BOOLEAN",
-            "label": " ",
-            "description": "Enter date manually",
-            "defaultValue": false
+            ]
         },
         {
             "name": "start_date",
             "label": " ",
             "description": "From",
             "type": "DATE",
-            "visibilityCondition": "!model.is_date_entered_manually"
+            "visibilityCondition": "model.date_range==null"
         },
         {
             "name": "manual_start_date",
             "type": "STRING",
             "label": " ",
             "description": "From",
-            "visibilityCondition": "model.is_date_entered_manually"
+            "visibilityCondition": "model.date_range=='manual'"
         },
         {
             "name": "end_date",
             "label": " ",
             "description": "To",
             "type": "DATE",
-            "visibilityCondition": "!model.is_date_entered_manually"
+            "visibilityCondition": "model.date_range==null"
         },
         {
             "name": "manual_end_date",
             "type": "STRING",
             "label": " ",
             "description": "To",
-            "visibilityCondition": "model.is_date_entered_manually"
+            "visibilityCondition": "model.date_range=='manual'"
         },
         {
             "name": "manual-time-doc-separator",
             "type": "SEPARATOR",
             "label": " ",
             "description": "Must be in format 2024-12-31T23:59:00.000",
-            "visibilityCondition": "model.is_date_entered_manually"
-        },
-        {
-            "name": "time_granularity",
-            "label": "Time granularity",
-            "type": "SELECT",
-            "selectChoices": [
-                {
-                    "value": "day",
-                    "label": "Day"
-                },
-                {
-                    "value": "month",
-                    "label": "Month"
-                }
-            ],
-            "visibilityCondition": "false && model.endpoint=='reports/realtime'"
+            "visibilityCondition": "model.date_range=='manual'"
         },
         {
             "name": "metrics_ids",
