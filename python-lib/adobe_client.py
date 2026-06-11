@@ -10,11 +10,7 @@ logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "
 
 class AdobeClient():
     def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False):
-        if mock:
-            logger.warning("Mock mode ! Get mock server started")
-            server_url = "http://localhost:3001/api/{}".format(company_id)
-        else:
-            server_url = "https://analytics.adobe.io/api/{}".format(company_id)
+        server_url = self._get_server_url(company_id, mock)
         pagination = AdobePagination()
         self.client = APIClient(
             server_url=server_url,
@@ -22,6 +18,14 @@ class AdobeClient():
             pagination=pagination,
             max_number_of_retries=1
         )
+
+    def _get_server_url(self, company_id, is_mock):
+        if is_mock:
+            logger.warning("Mock mode ! Get mock server started")
+            server_url = "http://localhost:3001/api/{}".format(company_id)
+        else:
+            server_url = "https://analytics.adobe.io/api/{}".format(company_id)
+        return server_url
 
     def get_next_item(self, endpoint):
         for page in self.get_next_page(endpoint):

@@ -1,0 +1,209 @@
+{
+    "meta" : {
+        "label": "Get CJA Reports",
+        "description": "Get a Customer Journey Analytics report",
+        "icon": "icon-adobe_analytics"
+    },
+    "readable": true,
+    "writable": false,
+    "supportAppend": false,
+    "kind": "PYTHON",
+    "paramsPythonSetup": "browse_cja.py",
+    "params": [
+        {
+            "name": "version_number",
+            "label": "Alpha.26",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "auth_type",
+            "label": "Type of authentication",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "user_account",
+                    "label": "Single Sign On"
+                },
+                {
+                    "value": "service_account",
+                    "label": "API key only"
+                },
+                {
+                    "value": "server_to_server",
+                    "label": "Server-to-Server"
+                }
+            ]
+        },
+        {
+            "name": "user_account",
+            "label": "User account",
+            "type": "PRESET",
+            "parameterSetId": "user-account",
+            "visibilityCondition": "model.auth_type == 'user_account'"
+        },
+        {
+            "name": "service_account",
+            "label": "API key only",
+            "type": "PRESET",
+            "parameterSetId": "service-account",
+            "visibilityCondition": "model.auth_type == 'service_account'"
+        },
+        {
+            "name": "server_to_server",
+            "label": "Server-to-Server",
+            "type": "PRESET",
+            "parameterSetId": "server-to-server",
+            "visibilityCondition": "model.auth_type == 'server_to_server'"
+        },
+        {
+            "name": "report_id",
+            "label": "Report Suite ID",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["auth_type", "server_to_server", "service_account", "user_account"]
+        },
+        {
+            "name": "report_id_manual",
+            "label": " ",
+            "description": "(id)",
+            "type": "STRING",
+            "visibilityCondition": "(model.report_id=='_dku_manual_select')"
+        },
+        {
+            "name": "endpoint",
+            "label": " ",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "reports",
+                    "label": "V2.0 Reporting"
+                },
+                {
+                    "value": "reports/realtime",
+                    "label": "Realtime report"
+                },
+                {
+                    "value": "v1.4",
+                    "label": "V1.4 Reporting"
+                }
+            ],
+            "defaultValue": "reports",
+            "visibilityCondition": "false"
+        },
+        {
+            "name": "is_date_entered_manually",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Enter date manually",
+            "defaultValue": false
+        },
+        {
+            "name": "start_date",
+            "label": " ",
+            "description": "From",
+            "type": "DATE",
+            "visibilityCondition": "!model.is_date_entered_manually"
+        },
+        {
+            "name": "manual_start_date",
+            "type": "STRING",
+            "label": " ",
+            "description": "From",
+            "visibilityCondition": "model.is_date_entered_manually"
+        },
+        {
+            "name": "end_date",
+            "label": " ",
+            "description": "To",
+            "type": "DATE",
+            "visibilityCondition": "!model.is_date_entered_manually"
+        },
+        {
+            "name": "manual_end_date",
+            "type": "STRING",
+            "label": " ",
+            "description": "To",
+            "visibilityCondition": "model.is_date_entered_manually"
+        },
+        {
+            "name": "manual-time-doc-separator",
+            "type": "SEPARATOR",
+            "label": " ",
+            "description": "Must be in format 2024-12-31T23:59:00.000",
+            "visibilityCondition": "model.is_date_entered_manually"
+        },
+        {
+            "name": "time_granularity",
+            "label": "Time granularity",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "day",
+                    "label": "Day"
+                },
+                {
+                    "value": "month",
+                    "label": "Month"
+                }
+            ],
+            "visibilityCondition": "false && model.endpoint=='reports/realtime'"
+        },
+        {
+            "name": "metrics_ids",
+            "label": "Metric",
+            "description": "",
+            "type": "MULTISELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
+        },
+        {
+            "name": "dimensions",
+            "label": "Dimensions",
+            "type": "MULTISELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
+        },
+        {
+            "name": "dimension_manual",
+            "label": " ",
+            "description": "(id)",
+            "type": "STRING",
+            "visibilityCondition": "(model.dimension=='_dku_manual_select')"
+        },
+        {
+            "name": "segment",
+            "label": "Segment",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "triggerParameters": ["report_id", "report_id_manual"]
+        },
+        {
+            "name": "segment_manual",
+            "label": " ",
+            "description": "(id)",
+            "type": "STRING",
+            "visibilityCondition": "(model.segment=='_dku_manual_select')"
+        },
+        {
+            "name": "should_add_total_row",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Add a total row",
+            "defaultValue": false
+        },
+        {
+            "name": "should_provide_breakdown_data",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Add a breakdown column",
+            "defaultValue": false
+        },
+        {
+            "name": "should_dump_server_result",
+            "type": "BOOLEAN",
+            "label": " ",
+            "description": "Dump server result",
+            "defaultValue": false
+        }
+    ]
+}
