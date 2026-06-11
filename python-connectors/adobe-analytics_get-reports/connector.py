@@ -1,6 +1,6 @@
 from dataiku.connector import Connector
 from adobe_analytics_common import (
-    get_connection_from_config, reorder_rows, dss_date_to_adobe
+    get_connection_from_config, reorder_rows, get_date_range
 )
 from adobe_client import AdobeClient
 from safe_logger import SafeLogger
@@ -11,6 +11,7 @@ from project_variable import ProjectVariable
 from adobe_accumulator import Accumulator
 import json
 
+
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
 mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
 
@@ -20,7 +21,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.25 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.27 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -35,13 +36,9 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("selected rsid: {}".format(self.report_id))
         if not self.report_id:
             raise Exception("A valid Report Suite ID needs to be set")
-        is_date_entered_manually = config.get("is_date_entered_manually", False)
-        if not is_date_entered_manually:
-            self.start_date = dss_date_to_adobe(config.get("start_date"))
-            self.end_date = dss_date_to_adobe(config.get("end_date"))
-        else:
-            self.start_date = config.get("manual_start_date")
-            self.end_date = config.get("manual_end_date")
+
+        self.start_date, self.end_date = get_date_range(config)
+
         logger.info("selected date range: from {} to {}".format(self.start_date, self.end_date))
         column_index = 0
         metrics_ids = config.get("metrics_ids", [])

@@ -92,6 +92,7 @@ def do(payload, config, plugin_config, inputs):
                 report_id = first_row.get("report_id")
             logger.info("listing dimensions for rsid '{}'".format(report_id))
             if report_id:
+                choices.append("<None>", None)
                 for dimension in client.next_dimension(report_id):
                     name = dimension.get("name")
                     extra_title_info = dimension.get("extraTitleInfo")
