@@ -7,6 +7,8 @@ import copy
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer-token", "access_token", "client_secret"])
 
+LIMIT_ITEMS_PER_PAGE = 5000
+
 
 class AdobeClient():
     def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None, mock=False):
@@ -22,6 +24,12 @@ class AdobeClient():
             pagination=pagination,
             max_number_of_retries=1
         )
+        self.limit_items_per_page = LIMIT_ITEMS_PER_PAGE
+
+    def _add_limit_to_params(self, input_params):
+        if self.limit_items_per_page > 0:
+            input_params["limit"] = self.limit_items_per_page
+        return input_params
 
     def get_next_item(self, endpoint):
         for page in self.get_next_page(endpoint):
@@ -250,10 +258,11 @@ class AdobeClient():
         #         yield row
         #     return
         row_index = 0
-        for row in self.client.get_next_row("calculatedmetrics", data_path="content", params={
-                    "includeType": "all",
-                    "rsid": rsid
-        }):
+        params = {
+            "toBeUsedInRsid": rsid
+        }
+        params = self._add_limit_to_params(params)
+        for row in self.client.get_next_row("calculatedmetrics", data_path="content", params=params):
             row_index += 1
             if row is None:
                 logger.error("empty row, stopping here")
@@ -271,7 +280,8 @@ class AdobeClient():
         #     return
         row_index = 0
         for row in self.client.get_next_row("dimensions", params={
-                    "rsid": rsid
+                    "rsid": rsid,
+                    "reportable": True
         }):
             row_index += 1
             if row is None:
@@ -285,7 +295,11 @@ class AdobeClient():
 
     def next_segment(self, rsid):
         row_index = 0
-        for row in self.client.get_next_row("segments", params={"includeType": "all"}, data_path="content"):
+        params = {
+            "rsid": rsid
+        }  # {"includeType": "all"}
+        params = self._add_limit_to_params(params)
+        for row in self.client.get_next_row("segments", params=params, data_path="content"):
             row_index += 1
             if row is None:
                 logger.error("empty row, stopping here")
