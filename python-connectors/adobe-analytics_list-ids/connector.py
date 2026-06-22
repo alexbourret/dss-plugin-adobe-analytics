@@ -3,7 +3,7 @@ from records_limit import RecordsLimit
 from adobe_client import AdobeClient
 from safe_logger import SafeLogger
 from adobe_analytics_common import (
-    get_connection_from_config
+    get_connection_from_config, get_fine_tuning
 )
 from dss_selector_choices import get_value_from_ui
 from plugin_details import get_initialization_string
@@ -33,11 +33,13 @@ class ListIDsConnector(Connector):
         api_key = user_account.get("api_key")
 
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
+        calculated_metrics_include_type_all, dimensions_reportable, segments_include_type_all, calculated_metrics_tobeusedinrsid = get_fine_tuning(config)
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,
             access_token=bearer_token,
             organization_id=organization_id,
+            calculated_metrics_include_type_all=calculated_metrics_include_type_all, dimensions_reportable=dimensions_reportable, segments_include_type_all=segments_include_type_all, calculated_metrics_tobeusedinrsid=calculated_metrics_tobeusedinrsid,
             mock=mock
         )
 
