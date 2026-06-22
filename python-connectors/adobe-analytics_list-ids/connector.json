@@ -89,6 +89,14 @@
             "defaultValue": false
         },
         {
+            "name": "request_limit",
+            "type": "INT",
+            "label": " ",
+            "description": "Limit",
+            "visibilityCondition": "model.fine_tuning == true",
+            "defaultValue": 1000
+        },
+        {
             "name": "element_to_list",
             "label": "Element to list",
             "type": "SELECT",

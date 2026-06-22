@@ -12,7 +12,7 @@ LIMIT_ITEMS_PER_PAGE = 1000
 
 class AdobeClient():
     def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None,
-                 calculated_metrics_include_type_all=None, dimensions_reportable=None, segments_include_type_all=None, calculated_metrics_tobeusedinrsid=None,
+                 calculated_metrics_include_type_all=None, dimensions_reportable=None, segments_include_type_all=None, calculated_metrics_tobeusedinrsid=None, request_limit=0,
                  mock=False
     ):
         if mock:
@@ -27,7 +27,8 @@ class AdobeClient():
             pagination=pagination,
             max_number_of_retries=1
         )
-        self.limit_items_per_page = LIMIT_ITEMS_PER_PAGE
+        self.limit_items_per_page = request_limit
+        # self.limit_items_per_page = LIMIT_ITEMS_PER_PAGE
         self.calculated_metrics_include_type_all = calculated_metrics_include_type_all
         self.dimensions_reportable = dimensions_reportable
         self.segments_include_type_all = segments_include_type_all

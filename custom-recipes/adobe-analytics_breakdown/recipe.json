@@ -112,6 +112,14 @@
             "defaultValue": false
         },
         {
+            "name": "request_limit",
+            "type": "INT",
+            "label": " ",
+            "description": "Limit",
+            "visibilityCondition": "model.fine_tuning == true",
+            "defaultValue": 1000
+        },
+        {
             "name": "dimension",
             "label": "Break down by",
             "type": "SELECT",
