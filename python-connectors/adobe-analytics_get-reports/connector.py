@@ -1,6 +1,6 @@
 from dataiku.connector import Connector
 from adobe_analytics_common import (
-    get_connection_from_config, reorder_rows, get_date_range
+    get_connection_from_config, reorder_rows, get_date_range, get_fine_tuning
 )
 from adobe_client import AdobeClient
 from safe_logger import SafeLogger
@@ -21,7 +21,7 @@ class AdobeAnalyticsConnector(Connector):
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
         logger.info(
-            "Starting plugin adobe-analytics v0.0.27 with config={}".format(
+            "Starting plugin adobe-analytics v0.0.29 with config={}".format(
                 logger.filter_secrets(config)
             )
         )
@@ -73,11 +73,13 @@ class AdobeAnalyticsConnector(Connector):
         self.should_provide_breakdown_data = config.get("should_provide_breakdown_data", False)
 
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
+        calculated_metrics_include_type_all, dimensions_reportable, segments_include_type_all, calculated_metrics_tobeusedinrsid, request_limit = get_fine_tuning(config)
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,
             access_token=bearer_token,
             organization_id=organization_id,
+            calculated_metrics_include_type_all=calculated_metrics_include_type_all, dimensions_reportable=dimensions_reportable, segments_include_type_all=segments_include_type_all, calculated_metrics_tobeusedinrsid=calculated_metrics_tobeusedinrsid, request_limit=request_limit,
             mock=mock
         )
 
