@@ -1,6 +1,6 @@
 from safe_logger import SafeLogger
 from adobe_analytics_common import (
-    get_connection_from_config
+    get_connection_from_config, get_fine_tuning
 )
 from adobe_client import AdobeClient
 from dss_selector_choices import DSSSelectorChoices, get_value_from_ui
@@ -21,6 +21,7 @@ def do(payload, config, plugin_config, inputs):
 
     try:
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
+        calculated_metrics_include_type_all, dimensions_reportable, segments_include_type_all, calculated_metrics_tobeusedinrsid, request_limit = get_fine_tuning(config)
     except Exception as error:
         logger.error("Error while getting token : {}".format(error))
         return choices.text_message("Error: Please check the logs.")
@@ -44,6 +45,7 @@ def do(payload, config, plugin_config, inputs):
             api_key=api_key,
             access_token=bearer_token,
             organization_id=organization_id,
+            calculated_metrics_include_type_all=calculated_metrics_include_type_all, dimensions_reportable=dimensions_reportable, segments_include_type_all=segments_include_type_all, calculated_metrics_tobeusedinrsid=calculated_metrics_tobeusedinrsid, request_limit=request_limit,
             mock=mock
         )
         if parameter_name == "report_id":

@@ -6,7 +6,7 @@ import dataiku
 import pandas as pd
 from dataiku.customrecipe import get_input_names_for_role, get_output_names_for_role, get_recipe_config
 
-from adobe_analytics_common import get_connection_from_config, reorder_rows
+from adobe_analytics_common import get_connection_from_config, reorder_rows, get_fine_tuning
 from adobe_client import AdobeClient
 from dss_selector_choices import get_value_from_ui
 from project_variable import ProjectVariable
@@ -256,7 +256,7 @@ def main():
     should_add_total_row = config.get("should_add_total_row", False)
 
     logger.info(
-        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.28 with config={}".format(
+        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.29 with config={}".format(
             logger.filter_secrets(config)
         )
     )
@@ -312,11 +312,13 @@ def main():
     if not bearer_token:
         raise Exception("Missing bearer token. Check your authentication preset.")
 
+    calculated_metrics_include_type_all, dimensions_reportable, segments_include_type_all, calculated_metrics_tobeusedinrsid, request_limit = get_fine_tuning(config)
     client = AdobeClient(
         company_id=company_id,
         api_key=api_key,
         access_token=bearer_token,
         organization_id=organization_id,
+        calculated_metrics_include_type_all=calculated_metrics_include_type_all, dimensions_reportable=dimensions_reportable, segments_include_type_all=segments_include_type_all, calculated_metrics_tobeusedinrsid=calculated_metrics_tobeusedinrsid, request_limit=request_limit,
         mock=mock
     )
 

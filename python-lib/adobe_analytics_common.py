@@ -148,3 +148,17 @@ def get_date_range(config):
         start_date = datetime(last_year, 1, 1, 0, 0, 0).strftime("%Y-%m-%dT%H:%M:%S.000")
         end_date = datetime(last_year, 12, 31, 23, 59, 0).strftime("%Y-%m-%dT%H:%M:%S.000")
     return start_date, end_date
+
+
+def get_fine_tuning(config):
+    calculated_metrics_include_type_all = dimensions_reportable = segments_include_type_all = calculated_metrics_tobeusedinrsid = False
+    request_limit = 0
+    fine_tuning = config.get("fine_tuning", False)
+    if fine_tuning:
+        calculated_metrics_include_type_all = config.get("calculated_metrics_include_type_all", False)
+        dimensions_reportable = config.get("dimensions_reportable", False)
+        segments_include_type_all = config.get("segments_include_type_all", False)
+        calculated_metrics_tobeusedinrsid = config.get("calculated_metrics_tobeusedinrsid", False)
+        request_limit = config.get("request_limit", 1000)
+    logger.info("fine_tuning=calculated_metrics_include_type_all={}, dimensions_reportable={}, segments_include_type_all={}, calculated_metrics_tobeusedinrsid={}".format(calculated_metrics_include_type_all, dimensions_reportable, segments_include_type_all, calculated_metrics_tobeusedinrsid))
+    return calculated_metrics_include_type_all, dimensions_reportable, segments_include_type_all, calculated_metrics_tobeusedinrsid, request_limit
