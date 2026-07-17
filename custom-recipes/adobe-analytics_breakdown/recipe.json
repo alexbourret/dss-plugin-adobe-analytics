@@ -73,53 +73,6 @@
             "visibilityCondition": "model.auth_type == 'server_to_server'"
         },
         {
-            "name": "fine_tuning",
-            "type": "BOOLEAN",
-            "label": " ",
-            "description": "Fine tuning",
-            "defaultValue": false
-        },
-        {
-            "name": "calculated_metrics_include_type_all",
-            "type": "BOOLEAN",
-            "label": " ",
-            "description": "Calculated metrics inc type all",
-            "visibilityCondition": "model.fine_tuning == true",
-            "defaultValue": false
-        },
-        {
-            "name": "calculated_metrics_tobeusedinrsid",
-            "type": "BOOLEAN",
-            "label": " ",
-            "description": "Calculated metrics to be used in rsid",
-            "visibilityCondition": "model.fine_tuning == true",
-            "defaultValue": false
-        },
-        {
-            "name": "dimensions_reportable",
-            "type": "BOOLEAN",
-            "label": " ",
-            "description": "Dimensions reportable",
-            "visibilityCondition": "model.fine_tuning == true",
-            "defaultValue": false
-        },
-        {
-            "name": "segments_include_type_all",
-            "type": "BOOLEAN",
-            "label": " ",
-            "description": "Segments inc type all",
-            "visibilityCondition": "model.fine_tuning == true",
-            "defaultValue": false
-        },
-        {
-            "name": "request_limit",
-            "type": "INT",
-            "label": " ",
-            "description": "Limit",
-            "visibilityCondition": "model.fine_tuning == true",
-            "defaultValue": 1000
-        },
-        {
             "name": "dimension",
             "label": "Break down by",
             "type": "SELECT",
