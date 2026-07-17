@@ -312,13 +312,11 @@ def main():
     if not bearer_token:
         raise Exception("Missing bearer token. Check your authentication preset.")
 
-    calculated_metrics_include_type_all, dimensions_reportable, segments_include_type_all, calculated_metrics_tobeusedinrsid, request_limit = get_fine_tuning(config)
     client = AdobeClient(
         company_id=company_id,
         api_key=api_key,
         access_token=bearer_token,
         organization_id=organization_id,
-        calculated_metrics_include_type_all=calculated_metrics_include_type_all, dimensions_reportable=dimensions_reportable, segments_include_type_all=segments_include_type_all, calculated_metrics_tobeusedinrsid=calculated_metrics_tobeusedinrsid, request_limit=request_limit,
         mock=mock
     )
 

@@ -12,7 +12,6 @@ LIMIT_ITEMS_PER_PAGE = 1000
 
 class AdobeClient():
     def __init__(self, company_id=None, api_key=None, access_token=None, organization_id=None,
-                 calculated_metrics_include_type_all=None, dimensions_reportable=None, segments_include_type_all=None, calculated_metrics_tobeusedinrsid=None, request_limit=0,
                  mock=False
     ):
         if mock:
@@ -27,12 +26,7 @@ class AdobeClient():
             pagination=pagination,
             max_number_of_retries=1
         )
-        self.limit_items_per_page = request_limit
-        # self.limit_items_per_page = LIMIT_ITEMS_PER_PAGE
-        self.calculated_metrics_include_type_all = calculated_metrics_include_type_all
-        self.dimensions_reportable = dimensions_reportable
-        self.segments_include_type_all = segments_include_type_all
-        self.calculated_metrics_tobeusedinrsid = calculated_metrics_tobeusedinrsid
+        self.limit_items_per_page = LIMIT_ITEMS_PER_PAGE
 
     def _add_limit_to_params(self, input_params):
         if self.limit_items_per_page > 0:
@@ -269,10 +263,11 @@ class AdobeClient():
         params = {
             "rsid": rsid
         }
-        if self.calculated_metrics_include_type_all:
-            params["includeType"] = "all"
-        if self.calculated_metrics_tobeusedinrsid:
-            params["toBeUsedInRsid"] = rsid
+        # if self.calculated_metrics_include_type_all:
+        #     params["includeType"] = "all"
+        params["includeType"] = "all"
+        # if self.calculated_metrics_tobeusedinrsid:
+        #     params["toBeUsedInRsid"] = rsid
         params = self._add_limit_to_params(params)
         for row in self.client.get_next_row("calculatedmetrics", data_path="content", params=params):
             row_index += 1
@@ -294,8 +289,9 @@ class AdobeClient():
         params = {
             "rsid": rsid
         }
-        if self.dimensions_reportable:
-            params["reportable"] = True
+        # if self.dimensions_reportable:
+        #     params["reportable"] = True
+        params["reportable"] = True
         for row in self.client.get_next_row("dimensions", params=params):
             row_index += 1
             if row is None:
@@ -312,8 +308,8 @@ class AdobeClient():
         params = {
             "rsid": rsid
         }  # {"includeType": "all"}
-        if self.segments_include_type_all:
-            params["includeType"] = "all"
+        # if self.segments_include_type_all:
+        #     params["includeType"] = "all"
         params = self._add_limit_to_params(params)
         for row in self.client.get_next_row("segments", params=params, data_path="content"):
             row_index += 1
