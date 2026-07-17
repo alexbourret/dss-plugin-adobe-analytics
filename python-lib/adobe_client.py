@@ -149,9 +149,10 @@ class AdobeClient():
         metric_entries = []
         metric_counter = 0
         number_of_dimensions = len(source_dimensions)
+        number_of_metrics = len(metrics)
         for metric in metrics:
             metric_copy = copy.deepcopy(metric)
-            metric_copy["filters"] = generate_filters_refs(number_of_dimensions, metric_counter)
+            metric_copy["filters"] = generate_filters_refs(number_of_dimensions, number_of_metrics, metric_counter)
             metric_entries.append(metric_copy)
             metric_counter += 1
         metric_counter = 0
@@ -438,12 +439,12 @@ class ErrorHandler():
             raise Exception("Error: {}".format(", ".join(errors)))
 
 
-def generate_filters_refs(number_of_dimensions, metric_counter):
+def generate_filters_refs(number_of_dimensions, number_of_metrics, metric_counter):
     # See "filters" key request body - https://developer.adobe.com/analytics-apis/docs/2.0/guides/endpoints/reports/breakdowns#third-level-breakdown
     # 1, X -> ["0"], ["1"]
     # 2, X -> ["0", "2"], ["1", "3"]
     output = []
     offset = metric_counter
     for dimension_number in range(0, number_of_dimensions):
-        output.append("{}".format(dimension_number * number_of_dimensions + offset))
+        output.append("{}".format(dimension_number * number_of_metrics + offset))
     return output
