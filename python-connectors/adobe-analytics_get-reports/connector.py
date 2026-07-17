@@ -73,13 +73,11 @@ class AdobeAnalyticsConnector(Connector):
         self.should_provide_breakdown_data = config.get("should_provide_breakdown_data", False)
 
         organization_id, company_id, api_key, bearer_token = get_connection_from_config(config, mock=mock)
-        calculated_metrics_include_type_all, dimensions_reportable, segments_include_type_all, calculated_metrics_tobeusedinrsid, request_limit = get_fine_tuning(config)
         self.client = AdobeClient(
             company_id=company_id,
             api_key=api_key,
             access_token=bearer_token,
             organization_id=organization_id,
-            calculated_metrics_include_type_all=calculated_metrics_include_type_all, dimensions_reportable=dimensions_reportable, segments_include_type_all=segments_include_type_all, calculated_metrics_tobeusedinrsid=calculated_metrics_tobeusedinrsid, request_limit=request_limit,
             mock=mock
         )
 
