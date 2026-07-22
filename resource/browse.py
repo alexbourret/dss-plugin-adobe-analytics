@@ -1,6 +1,6 @@
 from safe_logger import SafeLogger
 from adobe_analytics_common import (
-    get_connection_from_config, get_fine_tuning
+    get_connection_from_config
 )
 from adobe_client import AdobeClient
 from dss_selector_choices import DSSSelectorChoices, get_value_from_ui

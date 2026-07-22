@@ -6,7 +6,7 @@ import dataiku
 import pandas as pd
 from dataiku.customrecipe import get_input_names_for_role, get_output_names_for_role, get_recipe_config
 
-from adobe_analytics_common import get_connection_from_config, reorder_rows, get_fine_tuning
+from adobe_analytics_common import get_connection_from_config, reorder_rows
 from adobe_client import AdobeClient
 from dss_selector_choices import get_value_from_ui
 from project_variable import ProjectVariable
@@ -256,7 +256,7 @@ def main():
     should_add_total_row = config.get("should_add_total_row", False)
 
     logger.info(
-        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.30 with config={}".format(
+        "Starting plugin adobe-analytics breakdown dimension recipe v0.2.0 with config={}".format(
             logger.filter_secrets(config)
         )
     )
