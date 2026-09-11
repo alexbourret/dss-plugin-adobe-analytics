@@ -1,5 +1,5 @@
 import requests
-from safe_logger import SafeLogger
+from adobe_analytics_safe_logger import SafeLogger
 
 
 logger = SafeLogger("adobe-analytics plugin AdobeAuth", ["x-api-key", "Authorization"])

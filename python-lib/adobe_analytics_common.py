@@ -1,5 +1,5 @@
-from adobe_client import generate_access_token
-from safe_logger import SafeLogger
+from adobe_analytics_client import generate_access_token
+from adobe_analytics_safe_logger import SafeLogger
 from datetime import datetime, timedelta
 
 

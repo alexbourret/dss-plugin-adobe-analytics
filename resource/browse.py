@@ -1,10 +1,10 @@
-from safe_logger import SafeLogger
+from adobe_analytics_safe_logger import SafeLogger
 from adobe_analytics_common import (
     get_connection_from_config
 )
-from adobe_client import AdobeClient
-from dss_selector_choices import DSSSelectorChoices, get_value_from_ui
-from project_variable import ProjectVariable
+from adobe_analytics_client import AdobeClient
+from adobe_analytics_dss_selector_choices import DSSSelectorChoices, get_value_from_ui
+from adobe_analytics_project_variable import ProjectVariable
 
 
 logger = SafeLogger("adobe-analytics browser", ["bearer_token", "api_key", "client_secret"])

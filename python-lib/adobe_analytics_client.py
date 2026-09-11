@@ -1,7 +1,7 @@
-from adobe_auth import AdobeAuth
-from adobe_pagination import AdobePagination
-from api_client import APIClient
-from safe_logger import SafeLogger
+from adobe_analytics_auth import AdobeAuth
+from adobe_analytics_pagination import AdobePagination
+from adobe_analytics_api_client import APIClient
+from adobe_analytics_safe_logger import SafeLogger
 import copy
 
 
