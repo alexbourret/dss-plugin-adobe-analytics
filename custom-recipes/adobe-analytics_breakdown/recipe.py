@@ -13,6 +13,7 @@ from project_variable import ProjectVariable
 from safe_logger import SafeLogger
 from adobe_accumulator import Accumulator
 from diagnostics import test_urls
+from plugin_details import get_initialization_string
 
 
 logger = SafeLogger("adobe-analytics breakdown recipe", ["bearer_token", "api_key", "client_secret"])
@@ -257,6 +258,11 @@ def main():
 
     logger.info(
         "Starting plugin adobe-analytics breakdown dimension recipe v0.2.0 with config={}".format(
+            logger.filter_secrets(config)
+        )
+    )
+    logger.info("{} breakdown dimension recipe with config={}".format(
+            get_initialization_string(),
             logger.filter_secrets(config)
         )
     )

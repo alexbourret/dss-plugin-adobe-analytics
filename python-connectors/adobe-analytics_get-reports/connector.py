@@ -2,6 +2,7 @@ from dataiku.connector import Connector
 from adobe_analytics_common import (
     get_connection_from_config, reorder_rows, get_date_range
 )
+from plugin_details import get_initialization_string
 from adobe_client import AdobeClient
 from safe_logger import SafeLogger
 from records_limit import RecordsLimit
@@ -21,11 +22,10 @@ class AdobeAnalyticsConnector(Connector):
 
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
-        logger.info(
-            "Starting plugin adobe-analytics v0.2.0 with config={}".format(
-                logger.filter_secrets(config)
-            )
-        )
+        logger.info("{} AdobeAnalyticsConnector with config={}".format(
+            get_initialization_string(),
+            logger.filter_secrets(config)
+        ))
         if mock:
             logger.warning("Mock mode ! Get mock server started")
         if run_diagnostics:
