@@ -1,5 +1,5 @@
 import requests
-from safe_logger import SafeLogger
+from adobe_analytics_safe_logger import SafeLogger
 
 
 logger = SafeLogger("api-client")
@@ -41,7 +41,6 @@ class APIClient():
             full_url = url
         else:
             full_url = self.get_full_url(endpoint)
-        logger.info("posting url={}, params={}, json={}, data={}".format(full_url, params, json, data), max_per_line=10, then_short=30)
         json, params = reorganize_request_for_post_pagination(json, params)
         response = self.session.post(
             full_url,
@@ -174,7 +173,6 @@ def display_response_error(response):
         logger.error("Empty response")
     elif isinstance(response, requests.Response):
         status_code = response.status_code
-        logger.info("status_code={}".format(status_code))
         if status_code >= 400:
             logger.error("Error {}. Dumping response:{}".format(status_code, response.content))
     else:
@@ -185,11 +183,9 @@ def reorganize_request_for_post_pagination(json, params):
     # For post, move paging parameters from query string to json form
     json = {} or json
     params = {} or params
-    logger.info("Reorganizing pagination from params {} to json {}".format(params, json), max_per_line=4, then_short=30)
     page = params.pop("page", None)
     if page is not None:
         settings = json.pop("settings", {})
         settings["page"] = page
         json["settings"] = settings
-    logger.info("New params {} and json {}".format(params, json), max_per_line=4, then_short=30)
     return json, params

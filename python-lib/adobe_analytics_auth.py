@@ -1,5 +1,5 @@
 import requests
-from safe_logger import SafeLogger
+from adobe_analytics_safe_logger import SafeLogger
 
 
 logger = SafeLogger("adobe-analytics plugin AdobeAuth", ["x-api-key", "Authorization"])
@@ -22,5 +22,4 @@ class AdobeAuth(requests.auth.AuthBase):
             )
         if self.organization_id is not None:
             request.headers["x-gw-ims-org-id"] = self.organization_id
-        logger.info("requests headers : {}".format(logger.filter_secrets(request.headers)))
         return request

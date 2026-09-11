@@ -1,4 +1,4 @@
-from safe_logger import SafeLogger
+from adobe_analytics_safe_logger import SafeLogger
 
 
 logger = SafeLogger("plugin diagnostics")

@@ -1,4 +1,4 @@
-from safe_logger import SafeLogger
+from adobe_analytics_safe_logger import SafeLogger
 
 
 logger = SafeLogger("adobe pagination", ["password"])
@@ -14,13 +14,10 @@ class AdobePagination():
 
     def has_next_page(self, response, items_retrieved):
         if response is None:
-            logger.info("has_next_page initialisation")
             self.page_offset = None
             return True
         try:
-            logger.info("decoding json")
             json_response = response.json()
-            logger.info("json_response={}".format(json_response), max_per_line=3, then_short=50)
             if isinstance(json_response, list):
                 # The data return is an array,
                 # we can assume this is the only page
@@ -30,16 +27,13 @@ class AdobePagination():
                 logger.info("'error_code' in response -> no next page")
                 return False
             self.page_offset = json_response.get("number")
-            logger.info("page_offset={}".format(self.page_offset))
 
             is_last_page = json_response.get("lastPage", True)
-            logger.info("is_last_page={}".format(is_last_page))
             if is_last_page is True:
                 logger.info("lastPage=True in response -> no next page")
                 return False
             if "number" in json_response and "totalPages" in json_response:
                 total_number_of_pages = json_response.get("totalPages")
-                logger.info("total_number_of_pages={}".format(total_number_of_pages))
                 if json_response.get("number") >= total_number_of_pages:
                     logger.info("number of pages reached -> no next page")
                     return False
