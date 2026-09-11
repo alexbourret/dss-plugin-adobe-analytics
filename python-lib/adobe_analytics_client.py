@@ -92,11 +92,6 @@ class AdobeClient():
             breakdown_dimension=None,
             segment=None
     ):
-        logger.info(
-            "next_breakdown_row: report_id={}, source_dimension={}, source_item_id={}, breakdown_dimension={}".format(
-                report_id, source_dimensions, source_items_ids, breakdown_dimension
-            )
-        )
         metrics = metrics or []
         metric_filters = []
         metric_entries = []
@@ -140,10 +135,8 @@ class AdobeClient():
                 "type": "segment",
                 "segmentId": segment
             })
-        logger.info("breakdown query={}".format(query), max_per_line=3, then_short=30)
         error_handling = ErrorHandler()
         for row in self.client.get_next_row("reports", data_path="rows", method="POST", json=query, error_handling=error_handling):
-            logger.info("breakdown row={}".format(row), max_per_line=3, then_short=30)
             yield row
 
     def next_report_suites(self):
