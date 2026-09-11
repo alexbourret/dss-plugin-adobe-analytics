@@ -1,13 +1,13 @@
 from dataiku.connector import Connector
-from records_limit import RecordsLimit
-from adobe_client import AdobeClient
-from safe_logger import SafeLogger
+from adobe_analytics_records_limit import RecordsLimit
+from adobe_analytics_client import AdobeClient
+from adobe_analytics_safe_logger import SafeLogger
 from adobe_analytics_common import (
-    get_connection_from_config, get_fine_tuning
+    get_connection_from_config
 )
-from dss_selector_choices import get_value_from_ui
-from plugin_details import get_initialization_string
-from project_variable import ProjectVariable
+from adobe_analytics_dss_selector_choices import get_value_from_ui
+from adobe_analytics_plugin_details import get_initialization_string
+from adobe_analytics_project_variable import ProjectVariable
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
@@ -42,8 +42,6 @@ class ListIDsConnector(Connector):
         )
 
     def get_read_schema(self):
-        # In this example, we don't specify a schema here, so DSS will infer the schema
-        # from the columns actually returned by the generate_rows method
         return None
 
     def generate_rows(self, dataset_schema=None, dataset_partitioning=None,

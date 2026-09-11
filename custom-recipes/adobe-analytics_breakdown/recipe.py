@@ -6,13 +6,13 @@ import dataiku
 import pandas as pd
 from dataiku.customrecipe import get_input_names_for_role, get_output_names_for_role, get_recipe_config
 
-from adobe_analytics_common import get_connection_from_config, reorder_rows, get_fine_tuning
-from adobe_client import AdobeClient
-from dss_selector_choices import get_value_from_ui
-from project_variable import ProjectVariable
-from safe_logger import SafeLogger
-from adobe_accumulator import Accumulator
-from diagnostics import test_urls
+from adobe_analytics_common import get_connection_from_config, reorder_rows
+from adobe_analytics_client import AdobeClient
+from adobe_analytics_dss_selector_choices import get_value_from_ui
+from adobe_analytics_project_variable import ProjectVariable
+from adobe_analytics_safe_logger import SafeLogger
+from adobe_analytics_accumulator import Accumulator
+from adobe_analytics_plugin_details import get_initialization_string
 
 
 logger = SafeLogger("adobe-analytics breakdown recipe", ["bearer_token", "api_key", "client_secret"])
@@ -256,7 +256,12 @@ def main():
     should_add_total_row = config.get("should_add_total_row", False)
 
     logger.info(
-        "Starting plugin adobe-analytics breakdown dimension recipe v0.0.30 with config={}".format(
+        "Starting plugin adobe-analytics breakdown dimension recipe v0.2.0 with config={}".format(
+            logger.filter_secrets(config)
+        )
+    )
+    logger.info("{} breakdown dimension recipe with config={}".format(
+            get_initialization_string(),
             logger.filter_secrets(config)
         )
     )
@@ -390,5 +395,4 @@ def main():
     output_dataset.write_with_schema(output_df)
 
 
-test_urls()
 main()

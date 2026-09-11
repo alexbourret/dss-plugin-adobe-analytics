@@ -11,11 +11,6 @@
     "paramsPythonSetup": "browse.py",
     "params": [
         {
-            "name": "version_number",
-            "label": "Alpha.30",
-            "type": "SEPARATOR"
-        },
-        {
             "name": "auth_type",
             "label": "Type of authentication",
             "type": "SELECT",
@@ -237,6 +232,7 @@
             "type": "BOOLEAN",
             "label": " ",
             "description": "Add a total row",
+            "visibilityCondition": "(model.should_add_total_row==true)",
             "defaultValue": false
         },
         {

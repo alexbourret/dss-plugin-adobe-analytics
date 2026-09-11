@@ -1,37 +1,37 @@
 from dataiku.connector import Connector
 from adobe_analytics_common import (
-    get_connection_from_config, reorder_rows, get_date_range, get_fine_tuning
+    get_connection_from_config, reorder_rows, get_date_range
 )
-from adobe_client import AdobeClient
-from safe_logger import SafeLogger
-from records_limit import RecordsLimit
-from dss_selector_choices import get_value_from_ui
-from diagnostics import test_urls
-from project_variable import ProjectVariable
-from adobe_accumulator import Accumulator
+from adobe_analytics_plugin_details import get_initialization_string
+from adobe_analytics_client import AdobeClient
+from adobe_analytics_safe_logger import SafeLogger
+from adobe_analytics_records_limit import RecordsLimit
+from adobe_analytics_dss_selector_choices import get_value_from_ui
+from adobe_analytics_diagnostics import test_urls
+from adobe_analytics_project_variable import ProjectVariable
+from adobe_analytics_accumulator import Accumulator
 import json
 
 
 logger = SafeLogger("adobe-analytics plugin", ["bearer_token", "api_key", "client_secret"])
 mock = ProjectVariable("dku_adobe-analytics_is-mock", default_value=False).get_value()
+run_diagnostics = ProjectVariable("dku_adobe-analytics_run-diagnotics", default_value=False).get_value()
 
 
 class AdobeAnalyticsConnector(Connector):
 
     def __init__(self, config, plugin_config):
         Connector.__init__(self, config, plugin_config)
-        logger.info(
-            "Starting plugin adobe-analytics v0.0.30 with config={}".format(
-                logger.filter_secrets(config)
-            )
-        )
+        logger.info("{} AdobeAnalyticsConnector with config={}".format(
+            get_initialization_string(),
+            logger.filter_secrets(config)
+        ))
         if mock:
             logger.warning("Mock mode ! Get mock server started")
-        logger.info("Running diagnostics")
-        # logger.info("External IP={}".format(get_kernel_external_ip()))
-        # logger.info("Internal IP={}".format(get_kernel_internal_ip()))
-        logger.info("Pinging relevant external addresses:")
-        test_urls()
+        if run_diagnostics:
+            logger.info("Running diagnostics")
+            logger.info("Pinging relevant external addresses:")
+            test_urls()
         self.report_id = get_value_from_ui(config, "report_id")
         logger.info("selected rsid: {}".format(self.report_id))
         if not self.report_id:
@@ -56,7 +56,6 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("metrics={}".format(self.metrics))
         logger.info("metrics_names={}".format(self.metrics_names))
 
-        # self.dimension = get_value_from_ui(self.config, "dimension")
         self.dimension_name, self.dimension = decode_metric_id(
             get_value_from_ui(self.config, "dimension")
         )
@@ -81,83 +80,13 @@ class AdobeAnalyticsConnector(Connector):
             mock=mock
         )
 
-        # We now it works
-        # logger.info("Testing pagination on report_suites...")
-        # try:
-        #     report_suites = self.client.list_report_suites()
-        #     logger.info("report_suites={}".format(report_suites))
-        # except Exception as error:
-        #     logger.error("Error {} while listing report suites".format(error))
-
-        # We now it works
-        # logger.info("Testing pagination on metrics for {}...".format(self.report_id))
-        # try:
-        #     report_metrics = self.client.list_report_metrics(self.report_id)
-        #     logger.info("report_metrics={}".format(report_metrics))
-        # except Exception as error:
-        #     logger.error("Error {} while listing report metrics".format(error))
-
-        # We now it works, data path fixed
-        # logger.info("Testing pagination on calculated metrics for {}...".format(self.report_id))
-        # try:
-        #     report_calculated_metrics = self.client.list_report_calculated_metrics(self.report_id)
-        #     logger.info("report_calculated_metrics={}".format(report_calculated_metrics))
-        # except Exception as error:
-        #     logger.error("Error {} while listing report calculated metrics".format(error))
-
-        # We now it works
-        # logger.info("Testing pagination on dimensions for {}...".format(self.report_id))
-        # try:
-        #     report_dimensions = self.client.list_report_dimensions(self.report_id)
-        #     logger.info("report_metrics={}".format(report_dimensions))
-        # except Exception as error:
-        #     logger.error("Error {} while listing report dimensions".format(error))
-
-        # logger.info("Testing pagination on segments for {}...".format(self.report_id))
-        # # we bring 15k segments when no rsid provided, let's try with rsid now
-        # try:
-        #     report_segments = self.client.list_report_segments(self.report_id)
-        #     logger.info("report_segments={}".format(report_segments))
-        # except Exception as error:
-        #     logger.error("Error {} while listing report segments".format(error))
-
-        # logger.info("Testing getting info on report suite {}".format(self.report_id))
-        # # Goal: find the report's timezone to translate the UI date range
-        # try:
-        #     report_info = self.client.get_report_suite_details(self.report_id)
-        #     logger.info("Details about {}: {}".format(self.report_id, report_info))
-        # except Exception as error:
-        #     logger.error("Error {} while getting details".format(error))
-
     def get_read_schema(self):
-        """
-        Returns the schema that this connector generates when returning rows.
-
-        The returned schema may be None if the schema is not known in advance.
-        In that case, the dataset schema will be infered from the first rows.
-
-        If you do provide a schema here, all columns defined in the schema
-        will always be present in the output (with None value),
-        even if you don't provide a value in generate_rows
-
-        The schema must be a dict, with a single key: "columns", containing an array of
-        {'name':name, 'type' : type}.
-
-        Example:
-            return {"columns" : [ {"name": "col1", "type" : "string"}, {"name" :"col2", "type" : "float"}]}
-
-        Supported types are: string, int, bigint, float, double, date, boolean
-        """
-
-        # In this example, we don't specify a schema here, so DSS will infer the schema
-        # from the columns actually returned by the generate_rows method
         return None
 
     def generate_rows(self, dataset_schema=None, dataset_partitioning=None,
                       partition_id=None, records_limit=-1):
         logger.info("generate_rows, records_limit={}".format(records_limit))
         limit = RecordsLimit(records_limit)
-        logger.info("Before get_reports")
         accumulator = Accumulator()
 
         breakdown_data = {
@@ -189,45 +118,18 @@ class AdobeAnalyticsConnector(Connector):
 
     def get_writer(self, dataset_schema=None, dataset_partitioning=None,
                    partition_id=None, write_mode="OVERWRITE"):
-        """
-        Returns a writer object to write in the dataset (or in a partition).
-
-        The dataset_schema given here will match the the rows given to the writer below.
-
-        write_mode can either be OVERWRITE or APPEND.
-        It will not be APPEND unless the plugin explicitly supports append mode. See flag supportAppend in connector.json.
-        If applicable, the write_mode should be handled in the plugin code.
-
-        Note: the writer is responsible for clearing the partition, if relevant.
-        """
         raise NotImplementedError
 
     def get_partitioning(self):
-        """
-        Return the partitioning schema that the connector defines.
-        """
         raise NotImplementedError
 
     def list_partitions(self, partitioning):
-        """Return the list of partitions for the partitioning scheme
-        passed as parameter"""
         return []
 
     def partition_exists(self, partitioning, partition_id):
-        """Return whether the partition passed as parameter exists
-
-        Implementation is only required if the corresponding flag is set to True
-        in the connector definition
-        """
         raise NotImplementedError
 
     def get_records_count(self, partitioning=None, partition_id=None):
-        """
-        Returns the count of records for the dataset (or a partition).
-
-        Implementation is only required if the corresponding flag is set to True
-        in the connector definition
-        """
         raise NotImplementedError
 
 
@@ -254,7 +156,6 @@ def metrics_with_names(metrics, metrics_names):
 
 
 def order_output_row(row, metrics_names, item_name=None):
-    # metrics_names=['Page Views', 'Unique Visitors']
     item_name = item_name or "item_name"
     ordered_row = {}
     preferred_columns = [
