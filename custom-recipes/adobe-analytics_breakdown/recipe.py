@@ -12,7 +12,6 @@ from adobe_analytics_dss_selector_choices import get_value_from_ui
 from adobe_analytics_project_variable import ProjectVariable
 from adobe_analytics_safe_logger import SafeLogger
 from adobe_analytics_accumulator import Accumulator
-from adobe_analytics_diagnostics import test_urls
 from adobe_analytics_plugin_details import get_initialization_string
 
 
@@ -396,5 +395,4 @@ def main():
     output_dataset.write_with_schema(output_df)
 
 
-test_urls()
 main()
