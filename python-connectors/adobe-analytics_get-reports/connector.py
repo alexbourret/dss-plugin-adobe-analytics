@@ -56,7 +56,6 @@ class AdobeAnalyticsConnector(Connector):
         logger.info("metrics={}".format(self.metrics))
         logger.info("metrics_names={}".format(self.metrics_names))
 
-        # self.dimension = get_value_from_ui(self.config, "dimension")
         self.dimension_name, self.dimension = decode_metric_id(
             get_value_from_ui(self.config, "dimension")
         )
@@ -157,7 +156,6 @@ def metrics_with_names(metrics, metrics_names):
 
 
 def order_output_row(row, metrics_names, item_name=None):
-    # metrics_names=['Page Views', 'Unique Visitors']
     item_name = item_name or "item_name"
     ordered_row = {}
     preferred_columns = [
