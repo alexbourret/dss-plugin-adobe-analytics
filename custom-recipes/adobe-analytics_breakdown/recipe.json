@@ -93,6 +93,7 @@
             "type": "BOOLEAN",
             "label": " ",
             "description": "Add a total row",
+            "visibilityCondition": "(model.should_add_total_row==true)",
             "defaultValue": false
         }
     ]
